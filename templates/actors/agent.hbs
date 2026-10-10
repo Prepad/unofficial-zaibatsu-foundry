@@ -1,3 +1,12 @@
+{{#*inline "itemRow"}}
+<article class="zb-item-row draggable" draggable="true" data-item-id="{{id}}" data-document-id="{{id}}" data-uuid="{{uuid}}">
+  <img class="zb-item-icon" src="{{img}}" alt="{{name}}" loading="lazy" draggable="false">
+  <div><button type="button" class="zb-item-name" data-action="editItem" data-item-id="{{id}}">{{name}}</button><small>{{typeLabel}} · количество {{quantity}}{{#if equipped}} · экипирован{{/if}}{{#if isWeapon}} · {{damage}}{{#if ranged}} · {{ammo}}/{{capacity}}{{/if}}{{/if}}{{#if rating}} · рейтинг {{rating}}{{/if}}</small></div>
+  {{#if @root.editable}}<button type="button" class="zb-favorite {{#if favorite}}active{{/if}}" data-action="itemAction" data-item-action="favorite" data-item-id="{{id}}" aria-label="{{#if favorite}}Убрать из избранного{{else}}В избранное{{/if}}: {{name}}" aria-pressed="{{#if favorite}}true{{else}}false{{/if}}">{{#if favorite}}★{{else}}☆{{/if}}</button>{{/if}}
+  {{#if primary}}<button type="button" data-action="itemAction" data-item-action="{{primary.id}}" data-item-id="{{id}}">{{primary.label}}</button>{{/if}}
+  <button type="button" class="zb-item-menu" aria-label="Действия: {{name}}" aria-haspopup="menu">⋮</button>
+</article>
+{{/inline}}
 <div class="zb-sheet">
   <header class="zb-header">
     <img class="zb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}">
@@ -7,8 +16,7 @@
       <div class="zb-profile">{{localize "ZAIBATSU.Fields.Profile"}} <strong>{{system.profile}}</strong></div>
     </div>
   </header>
-  <div class="zb-toolbar"><button type="button" data-action="terminal">Терминал: бой, киберпространство, справочник</button><button type="button" data-action="unarmed" {{#unless editable}}disabled{{/unless}}>Рукопашная</button><button type="button" data-action="aid" {{#unless editable}}disabled{{/unless}}>Медпомощь</button></div>
-  <nav class="zb-tabs" aria-label="{{localize 'ZAIBATSU.Sheets.Actor'}}">
+  <nav class="tabs zb-tabs" aria-label="{{localize 'ZAIBATSU.Sheets.Actor'}}">
     {{#each tabs}}
     <button type="button" class="{{cssClass}}" data-action="tab" data-group="primary" data-tab="{{id}}">{{localize label}}</button>
     {{/each}}
@@ -16,11 +24,25 @@
   <div class="zb-tab-body">
     <section class="tab {{tabs.overview.cssClass}}" data-group="primary" data-tab="overview">
       <div class="zb-field-grid">
-        <label>{{localize "ZAIBATSU.Fields.Concept"}}<input name="system.concept" value="{{system.concept}}" {{#unless editable}}disabled{{/unless}}></label>
+        <label class="zb-drop-zone" data-drop-zone="concept">{{localize "ZAIBATSU.Fields.Concept"}}<input name="system.concept" value="{{system.concept}}" placeholder="Перетащите концепцию из компендиума" {{#unless editable}}disabled{{/unless}}></label>
         <label>{{localize "ZAIBATSU.Fields.Age"}}<input type="number" name="system.age" value="{{system.age}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
         <label>{{localize "ZAIBATSU.Fields.Rank"}}<input type="number" name="system.rank" value="{{system.rank}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
         <label>{{localize "ZAIBATSU.Fields.Money"}}<input type="number" name="system.money" value="{{system.money}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
       </div>
+      <section class="zb-favorites zb-drop-zone" data-drop-zone="favorites">
+        <div class="zb-section-heading"><h2>Избранное</h2><span class="zb-muted">★ в инвентаре или перетащите предмет сюда</span></div>
+        {{#each favorites}}{{> itemRow}}{{else}}<p class="zb-hint">Добавьте оружие, деку, программу или адаптацию для быстрого доступа. Меню ⋮ и правый клик открывают все действия предмета.</p>{{/each}}
+      </section>
+      <div class="zb-toolbar">
+        <button type="button" data-action="command" data-command="unarmed" {{#unless editable}}disabled{{/unless}}>Рукопашная / захват</button>
+        <button type="button" data-action="command" data-command="opposed" {{#unless editable}}disabled{{/unless}}>Встречная проверка</button>
+        <button type="button" data-action="command" data-command="escapeHold" {{#unless editable}}disabled{{/unless}}>Освободиться</button>
+      </div>
+      <details class="zb-sheet-tools"><summary>Действия раунда</summary><div class="zb-toolbar">
+        <button type="button" data-action="command" data-command="declare" {{#unless editable}}disabled{{/unless}}>Заявка</button>
+        <button type="button" data-action="command" data-command="major" {{#unless editable}}disabled{{/unless}}>Главное действие</button>
+        <button type="button" data-action="command" data-command="minor" {{#unless editable}}disabled{{/unless}}>Малое действие</button>
+      </div><p class="zb-hint">Заявка: {{system.combatState.declaration}} · Прицеливание: +{{system.combatState.aim}}</p></details>
       <h2>{{localize "ZAIBATSU.Tabs.Overview"}}</h2>
       <div class="zb-attributes">
         {{#each attributes}}
@@ -34,6 +56,13 @@
       </div>
       <p class="zb-hint">{{localize "ZAIBATSU.Hints.Characteristic"}}</p>
       <h3>Ранения и состояния</h3><p>Состояние: {{woundLabel}} · Шок: {{system.wounds.shock}} · МОД: {{penalty}}</p>
+      <div class="zb-toolbar">
+        <button type="button" data-action="command" data-command="aid" {{#unless editable}}disabled{{/unless}}>Медпомощь</button>
+        <button type="button" data-action="command" data-command="rest" {{#unless editable}}disabled{{/unless}}>{{#if system.recovery.resting}}Завершить отдых{{else}}Начать отдых{{/if}}</button>
+        <button type="button" data-action="command" data-command="manualDamage" {{#unless editable}}disabled{{/unless}}>Урон</button>
+        <button type="button" data-action="command" data-command="heal" {{#unless editable}}disabled{{/unless}}>Восстановление</button>
+        <button type="button" data-action="command" data-command="condition" {{#unless editable}}disabled{{/unless}}>Состояние</button>
+      </div>
       {{#each conditions}}<div class="zb-item-row"><span>{{label}} · МОД {{modifier}}</span>{{#if ../editable}}<button type="button" data-action="clearCondition" data-id="{{id}}">Снять</button>{{/if}}</div>{{/each}}
       {{#if vehicle}}<p>Андроид: ПБ {{vehicle.armor}} · повреждения {{vehicle.damage}}/{{vehicle.destroyedAt}}</p><label>Повреждения корпуса<input type="number" name="system.vehicle.damage" min="0" value="{{vehicle.damage}}" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
     </section>
@@ -56,19 +85,33 @@
     </section>
     <section class="tab {{tabs.inventory.cssClass}} zb-inventory" data-group="primary" data-tab="inventory">
       <div class="zb-section-heading"><h2>{{localize "ZAIBATSU.Tabs.Inventory"}}</h2><button type="button" data-action="createItem" {{#unless editable}}disabled{{/unless}}>{{localize "ZAIBATSU.Inventory.Add"}}</button></div>
-      <p>Занято {{slots}} мест; комфортный предел — 8. Предметы из каталога можно добавлять через терминал или перетаскивать из каталога мира.</p>
+      <p class="zb-hint">Занято {{slots}} мест; комфортный предел — 8. Перетащите предмет или папку из компендиума либо каталога мира. ★ добавляет предмет в избранное; ⋮ и правый клик открывают действия.</p>
+      <div class="zb-inventory-list zb-drop-zone" data-drop-zone="inventory">
       {{#each inventory}}
-      <article class="zb-item-row" draggable="true" data-item-id="{{id}}" data-document-id="{{id}}" data-uuid="{{uuid}}">
-        {{#if img}}<img class="zb-item-icon" src="{{img}}" alt="{{name}}" loading="lazy">{{/if}}
-        <div><strong>{{name}}</strong><small>{{typeLabel}} · {{localize "ZAIBATSU.Fields.Quantity"}}: {{quantity}}{{#if equipped}} · {{localize "ZAIBATSU.Fields.Equipped"}}{{/if}}{{#if isWeapon}} · {{damage}}{{#if ranged}} · {{ammo}}/{{capacity}}{{/if}}{{/if}}</small></div>
-        {{#if ../editable}}<button type="button" data-action="equip" data-item-id="{{id}}">{{#if equipped}}Снять{{else}}Надеть{{/if}}</button>{{#if isWeapon}}<button type="button" data-action="attack" data-item-id="{{id}}">Атака</button>{{#if ranged}}<button type="button" data-action="aim" data-item-id="{{id}}">Целиться</button><button type="button" data-action="reload" data-item-id="{{id}}">Зарядить</button>{{/if}}{{/if}}{{/if}}
-        <button type="button" data-action="editItem" data-item-id="{{id}}">{{localize "ZAIBATSU.Inventory.Open"}}</button>
-        {{#if ../editable}}<button type="button" data-action="deleteItem" data-item-id="{{id}}" aria-label="{{localize 'ZAIBATSU.Inventory.Delete'}}: {{name}}">×</button>{{/if}}
-      </article>
+      {{> itemRow}}
       {{else}}<p class="zb-hint">{{localize "ZAIBATSU.Inventory.Empty"}}</p>{{/each}}
+      </div>
+      <p class="zb-hint">Свободные очки ретрогеники: {{retroPoints}}. Перетаскивание копирует предмет; установку и стоимость согласуйте с ведущим.</p>
+    </section>
+    <section class="tab {{tabs.cyber.cssClass}}" data-group="primary" data-tab="cyber">
+      <h2>Киберпространство {{cyber.networkName}}</h2>
+      <p>{{#if cyber.connected}}Соединение активно{{else}}Нет соединения: выберите деку и нажмите «Подключиться»{{/if}} · Неудачи {{cyber.failures}} / безопасных {{cyber.safeFailures}}</p>
+      <div class="zb-drop-zone" data-drop-zone="inventory">{{#each cyberItems}}{{> itemRow}}{{else}}<p class="zb-hint">Перетащите кибердеку и программы из компендиума сюда или в инвентарь.</p>{{/each}}</div>
+      {{#if cyber.ice}}<p>ЛЕД · рейтинг {{cyber.ice.rating}}. Выберите ЛЕДокол в меню программы.</p>{{/if}}
+      {{#if cyber.blackICE}}<p>Чёрный ЛЕД · рейтинг {{cyber.blackICE.rating}}</p><button type="button" data-action="command" data-command="escape" {{#unless editable}}disabled{{/unless}}>Вырваться · 2 минуты</button>{{/if}}
+      {{#if cyber.connected}}
+      <h3>Подсистемы</h3><div class="zb-action-grid">{{#each cyber.networkNodes}}<button type="button" data-action="command" data-command="guess" data-node="{{id}}" {{#unless @root.editable}}disabled{{/unless}}>{{name}} · {{#if easy}}цвет{{else}}масть{{/if}}</button>{{/each}}</div>
+      <div class="zb-toolbar"><button type="button" data-action="command" data-command="procedure" {{#unless editable}}disabled{{/unless}}>Специальная процедура</button><button type="button" data-action="command" data-command="remoteCommand" {{#unless editable}}disabled{{/unless}}>Удалённая команда</button><button type="button" data-action="command" data-command="disconnect" {{#unless editable}}disabled{{/unless}}>Отключиться</button></div>
+      {{/if}}
+      <h3>Открытые карты</h3>{{#each cyber.revealed}}<p>{{node}} · {{label}}</p>{{else}}<p class="zb-hint">Карты пока не открыты.</p>{{/each}}
+      <details class="zb-sheet-tools"><summary>Журнал соединения</summary><ol>{{#each cyber.log}}<li>{{this}}</li>{{/each}}</ol></details>
     </section>
     <section class="tab {{tabs.biography.cssClass}}" data-group="primary" data-tab="biography">
       <label class="zb-biography">{{localize "ZAIBATSU.Fields.Biography"}}<textarea name="system.biography" rows="15" {{#unless editable}}disabled{{/unless}}>{{system.biography}}</textarea></label>
+      <h3>Контакты</h3>{{#each system.contacts}}<p><strong>{{name}}</strong> · {{notes}}</p>{{else}}<p class="zb-hint">Контактов пока нет.</p>{{/each}}
+      <button type="button" data-action="command" data-command="contact" {{#unless editable}}disabled{{/unless}}>Добавить контакт</button>
+      {{#if gm}}<button type="button" data-action="command" data-command="advancement" {{#unless editable}}disabled{{/unless}}>ОП и продвижение</button>{{/if}}
     </section>
   </div>
+  <footer class="zb-sheet-footer"><button type="button" data-action="terminal">Терминал ведущего и справочник</button></footer>
 </div>

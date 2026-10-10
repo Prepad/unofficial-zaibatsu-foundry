@@ -1,8 +1,9 @@
+import { chooseConceptKit, catalogItemData, createConceptVehicle } from "../services/concepts.mjs";
 import { ATTRIBUTES, SKILLS } from "../config.mjs";
 import { CATALOG, CONCEPTS } from "../data/catalog.mjs";
 import { EVENTS, CONTACTS, APPEARANCE, MOTIVATION, TRAITS, ENMITY } from "../data/background.mjs";
 import { buildCharacter, additionalSkills } from "../rules/creation.mjs";
-import { escape, notifyAction, prompt } from "../services/runtime.mjs";
+import { escape, notifyAction } from "../services/runtime.mjs";
 
 const roll = async formula => (await new foundry.dice.Roll(formula).evaluate()).total;
 const table66 = async table => table[(await roll("1d6") - 1) * 6 + await roll("1d6") - 1];
@@ -71,29 +72,27 @@ export class CharacterCreator extends foundry.applications.api.HandlebarsApplica
       data.system.contacts = this.generatedBackground?.contacts ?? [{ name: "Контакт", notes: "Укажите знакомого", loyalty: 0 }];
       data.ownership = { default: 0, [game.user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
       const concept = CONCEPTS.find(c => c.id === value("concept"));
-      if (concept.id === "commando") {
-        const kit = await prompt("Вооружение спецназовца", [{ name: "kit", label: "Комплект", value: "rocket", options: [{ value: "rocket", label: "Два БРМД" }, { value: "magneticMine", label: "Четыре магнитные мины" }] }]);
+      if (["commando", "gangster"].includes(concept.id)) {
+        const kit = await chooseConceptKit(concept);
         if (!kit) return;
-        if (kit.kit === "magneticMine") {
-          data.items = data.items.filter(item => item.system.catalogId !== "rocket");
-          for (let i = 0; i < 4; i++) { const item = CATALOG.find(item => item.id === "magneticMine"); data.items.push({ name: item.name, type: item.type, img: item.img, system: structuredClone(item.system) }); }
-        }
+        // Remove exactly the default concept kit, leaving the base equipment and adaptations intact.
+        const remaining = [...concept.items];
+        data.items = data.items.filter(item => {
+          const index = remaining.indexOf(item.system.catalogId);
+          if (index < 0) return true;
+          remaining.splice(index, 1);
+          return false;
+        });
+        data.items.push(...kit.map(catalogItemData));
       }
-      if (concept.id === "gangster") {
-        const choices = CATALOG.filter(item => item.type === "weapon" && item.system.kind === "melee").map(item => ({ value: item.id, label: item.name }));
-        const kit = await prompt("Два оружия ближнего боя", [{ name: "one", label: "Первое", value: "katana", options: choices }, { name: "two", label: "Второе", value: "tanto", options: choices }]);
-        if (!kit) return;
-        data.items = data.items.filter(item => !["katana", "tanto"].includes(item.system.catalogId));
-        for (const id of [kit.one, kit.two]) { const item = CATALOG.find(item => item.id === id); data.items.push({ name: item.name, type: item.type, img: item.img, system: structuredClone(item.system) }); }
-      }
+      data.flags = { zaibatsu: { conceptKits: [concept.id], initialResources: true } };
       this.saving = true;
       let actor;
       let vehicle;
       try {
         actor = await foundry.documents.Actor.create(data);
         if (concept.id === "driver") {
-          vehicle = await foundry.documents.Actor.create({ name: `${actor.name} — бронированный седан`, type: "vehicle", img: "systems/zaibatsu/assets/items/armoredSedan.png", ownership: data.ownership,
-            system: { vehicle: { size: "medium", mode: "ground", armor: 12, damage: 0, disabledAt: 15, destroyedAt: 30, speed: 0, driver: actor.uuid, passengers: [] } } });
+          vehicle = await createConceptVehicle(actor);
           const gear = actor.items.find(item => item.system.catalogId === "armoredSedan");
           await gear.update({ "system.linkedActorUuid": vehicle.uuid });
         }

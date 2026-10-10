@@ -16,6 +16,7 @@
 .zaibatsu .zb-profile { font-size: 12px; color: var(--zb-muted); }
 .zaibatsu .zb-profile strong { font: 17px monospace; color: var(--zb-accent); letter-spacing: .14em; }
 .zaibatsu .zb-tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--zb-line); padding-bottom: 10px; }
+.zaibatsu .zb-tabs { flex: 0 0 auto; }
 .zaibatsu .zb-tabs button { flex: 1; }
 .zaibatsu .zb-tabs .active { border-color: var(--zb-accent); color: var(--zb-accent); }
 .zaibatsu .zb-tab-body { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
@@ -44,6 +45,16 @@
 .zaibatsu .zb-item-row > div, .zaibatsu .zb-item-row > span { flex: 1; min-width: 170px; }
 .zaibatsu .zb-item-row[hidden] { display: none; }
 .zaibatsu .zb-item-row small { display: block; color: var(--zb-muted); margin-top: 5px; }
+.zaibatsu .zb-item-name { border: 0; padding: 0; background: transparent; font-weight: 700; text-align: left; height: auto; }
+.zaibatsu .zb-item-menu, .zaibatsu .zb-favorite { flex: 0 0 32px; width: 32px; min-width: 32px; }
+.zaibatsu .zb-favorite.active { color: var(--zb-accent); border-color: var(--zb-accent); }
+.zaibatsu .zb-drop-zone { border: 1px dashed var(--zb-line); border-radius: 5px; padding: 12px; }
+.zaibatsu .zb-favorites { background: var(--zb-panel); margin-bottom: 14px; }
+.zaibatsu .zb-inventory-list { min-height: 100px; }
+.zaibatsu .zb-sheet-tools { margin: 14px 0; padding: 12px; border: 1px solid var(--zb-line); border-radius: 5px; }
+.zaibatsu .zb-sheet-tools summary { cursor: pointer; color: var(--zb-accent); margin-bottom: 10px; }
+.zaibatsu .zb-sheet-footer { flex: 0 0 auto; border-top: 1px solid var(--zb-line); padding-top: 8px; }
+.zaibatsu.zb-vehicle-sheet .zb-sheet { overflow-y: auto; }
 .zaibatsu .zb-item-icon { width: 48px; height: 48px; flex: 0 0 48px; object-fit: cover; border: 1px solid var(--zb-line); border-radius: 4px; }
 .zaibatsu .zb-checkbox { flex-direction: row; align-items: center; }
 .zaibatsu .zb-checkbox input { width: 18px; height: 18px; }

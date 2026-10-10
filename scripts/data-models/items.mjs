@@ -14,7 +14,8 @@ export class GearData extends foundry.abstract.TypeDataModel {
       description: new StringField({ required: true, blank: true, initial: "" }),
       quantity: number(1),
       price: number(),
-      equipped: new BooleanField({ initial: false })
+      equipped: new BooleanField({ initial: false }),
+      favorite: new BooleanField({ initial: false })
     };
   }
 }

@@ -1,6 +1,6 @@
 <div class="zb-sheet">
   <header class="zb-header"><img class="zb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}"><input class="zb-name" name="name" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}}></header>
-  <button type="button" data-action="terminal">Терминал: управление, столкновения, ремонт</button>
+  <div class="zb-toolbar"><button type="button" data-action="command" data-command="drive" {{#unless editable}}disabled{{/unless}}>Манёвры и таран</button><button type="button" data-action="command" data-command="collision" {{#unless editable}}disabled{{/unless}}>Столкновение / падение</button><button type="button" data-action="command" data-command="heal" {{#unless editable}}disabled{{/unless}}>Ремонт</button><button type="button" data-action="command" data-command="crew" {{#unless editable}}disabled{{/unless}}>Экипаж</button></div>
   <div class="zb-field-grid">
     <label>Управление<select name="system.vehicle.mode" {{#unless editable}}disabled{{/unless}}>{{#each modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>Размер<select name="system.vehicle.size" {{#unless editable}}disabled{{/unless}}>{{#each sizes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
@@ -9,8 +9,13 @@
     <label>Порог неисправности<input type="number" name="system.vehicle.disabledAt" min="1" value="{{system.vehicle.disabledAt}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>Порог уничтожения<input type="number" name="system.vehicle.destroyedAt" min="1" value="{{system.vehicle.destroyedAt}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>Скорость, км/ч<input type="number" name="system.vehicle.speed" min="0" value="{{system.vehicle.speed}}" {{#unless editable}}disabled{{/unless}}></label>
-    <label>Водитель<select name="system.vehicle.driver" {{#unless editable}}disabled{{/unless}}>{{#each drivers}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+    <label class="zb-drop-zone" data-drop-zone="driver">Водитель<select name="system.vehicle.driver" {{#unless editable}}disabled{{/unless}}>{{#each drivers}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select><small>Или перетащите персонажа сюда</small></label>
   </div>
   <p>Броня транспорта защищает от каждого попадания. Пороги: малый 10/20, средний 15/30, большой 30/60.</p>
   <label>Описание и экипаж<textarea rows="8" name="system.biography" {{#unless editable}}disabled{{/unless}}>{{system.biography}}</textarea></label>
+  <section class="zb-drop-zone" data-drop-zone="passengers"><h2>Пассажиры</h2>{{#each passengers}}<p>{{name}}</p>{{else}}<p class="zb-hint">Перетащите персонажа сюда для добавления в экипаж. Удалить пассажира можно через кнопку «Экипаж».</p>{{/each}}</section>
+  <section class="zb-drop-zone" data-drop-zone="inventory"><div class="zb-section-heading"><h2>Снаряжение транспорта</h2><button type="button" data-action="createItem" {{#unless editable}}disabled{{/unless}}>Добавить предмет</button></div>
+    {{#each inventory}}<article class="zb-item-row draggable" draggable="true" data-item-id="{{id}}" data-document-id="{{id}}" data-uuid="{{uuid}}"><img class="zb-item-icon" src="{{img}}" alt="{{name}}" draggable="false"><div><button type="button" class="zb-item-name" data-action="editItem" data-item-id="{{id}}">{{name}}</button><small>{{typeLabel}} · {{quantity}}</small></div><button type="button" class="zb-item-menu" aria-label="Действия: {{name}}" aria-haspopup="menu">⋮</button></article>{{else}}<p class="zb-hint">Перетащите предметы из компендиума сюда.</p>{{/each}}
+  </section>
+  <footer class="zb-sheet-footer"><button type="button" data-action="terminal">Терминал ведущего и справочник</button></footer>
 </div>

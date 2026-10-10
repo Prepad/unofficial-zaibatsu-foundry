@@ -1,4 +1,6 @@
 import { ITEM_TYPES, SKILLS } from "../config.mjs";
+import { itemActions, performItemAction } from "../services/item-actions.mjs";
+import { notifyAction } from "../services/runtime.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -7,7 +9,7 @@ export class ZaibatsuItemSheet extends HandlebarsApplicationMixin(foundry.applic
     classes: ["zaibatsu", "zb-item-sheet"], tag: "form",
     position: { width: 520, height: 620 }, window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
-    actions: { linkedActor: ZaibatsuItemSheet.linkedActor }
+    actions: { linkedActor: ZaibatsuItemSheet.linkedActor, itemAction: ZaibatsuItemSheet.itemAction }
   };
 
   static PARTS = { main: { template: "systems/zaibatsu/templates/items/item.hbs" } };
@@ -17,6 +19,8 @@ export class ZaibatsuItemSheet extends HandlebarsApplicationMixin(foundry.applic
     const item = this.document;
     return {
       ...context, item, system: item.system, editable: this.isEditable,
+      owned: !!item.actor,
+      itemActions: item.actor ? itemActions(item.actor, item, this.isEditable).filter(action => !["open", "delete", "equip", "favorite"].includes(action.id)) : [],
       typeLabel: game.i18n.localize(ITEM_TYPES[item.type]),
       isWeapon: item.type === "weapon", isArmor: item.type === "armor",
       isRetrogenic: item.type === "retrogenic",
@@ -28,6 +32,14 @@ export class ZaibatsuItemSheet extends HandlebarsApplicationMixin(foundry.applic
       skills: Object.entries(SKILLS).map(([value, skill]) => ({ value, label: skill.label,
         selected: item.system.skill === value }))
     };
+  }
+  async _onRender(context, options) { await super._onRender(context, options); game.zaibatsu.windows.add(this); }
+  _onClose(options) { game.zaibatsu.windows.delete(this); return super._onClose(options); }
+  static async itemAction(_event, target) {
+    if (!this.document.actor || this.busy) return;
+    this.busy = true;
+    try { return await notifyAction(async () => { if (this.isEditable) await this.submit(); return performItemAction(this.document.actor, this.document, target.dataset.itemAction, this.isEditable); }); }
+    finally { this.busy = false; if (this.rendered) await this.render({ force: true }); }
   }
   static async linkedActor() {
     const actor = await fromUuid(this.document.system.linkedActorUuid);

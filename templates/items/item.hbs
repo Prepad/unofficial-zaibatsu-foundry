@@ -3,12 +3,13 @@
     <img class="zb-portrait" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}">
     <div><span class="zb-eyebrow">{{typeLabel}}</span><input class="zb-name" name="name" value="{{item.name}}" aria-label="{{localize 'ZAIBATSU.Fields.Name'}}" {{#unless editable}}disabled{{/unless}}></div>
   </header>
-  {{#if system.linkedActorUuid}}<button type="button" data-action="linkedActor">Открыть связанный транспорт</button>{{/if}}
+  {{#if itemActions.length}}<div class="zb-toolbar">{{#each itemActions}}<button type="button" data-action="itemAction" data-item-action="{{id}}">{{label}}</button>{{/each}}</div>{{else}}{{#if system.linkedActorUuid}}<button type="button" data-action="linkedActor">Открыть связанный транспорт</button>{{/if}}{{/if}}
   <div class="zb-field-grid">
     <label>Места в инвентаре<input type="number" name="system.slots" min="0" value="{{system.slots}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>{{localize "ZAIBATSU.Fields.Quantity"}}<input type="number" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
     <label>{{localize "ZAIBATSU.Fields.Price"}}<input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
     <label class="zb-checkbox"><input type="checkbox" name="system.equipped" {{#if system.equipped}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>{{localize "ZAIBATSU.Fields.Equipped"}}</label>
+    {{#if owned}}<label class="zb-checkbox"><input type="checkbox" name="system.favorite" {{#if system.favorite}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>Избранное в листе персонажа</label>{{/if}}
     {{#if isWeapon}}
     <label>Вид оружия<select name="system.kind" {{#unless editable}}disabled{{/unless}}>{{#each kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>Тип урона<select name="system.damageType" {{#unless editable}}disabled{{/unless}}>{{#each damageTypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>

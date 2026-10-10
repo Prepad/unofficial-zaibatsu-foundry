@@ -1,6 +1,11 @@
 import { ATTRIBUTES, SKILLS, SKILL_GROUPS, ITEM_TYPES, WOUND_NAMES } from "../config.mjs";
 import { Workbench } from "../applications/workbench.mjs";
 import { unarmed, healDialog } from "../services/combat.mjs";
+import { cardLabel } from "../rules/cyberspace.mjs";
+import { executeActorCommand } from "../services/actor-actions.mjs";
+import { ITEM_ACTIONS, inventoryContext, itemActions, performItemAction } from "../services/item-actions.mjs";
+import { applyConcept } from "../services/concepts.mjs";
+import { notifyAction, serial } from "../services/runtime.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -24,7 +29,9 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
       aim: ZaibatsuActorSheet.aim,
       unarmed: ZaibatsuActorSheet.unarmed,
       aid: ZaibatsuActorSheet.aid,
-      clearCondition: ZaibatsuActorSheet.clearCondition
+      clearCondition: ZaibatsuActorSheet.clearCondition,
+      itemAction: ZaibatsuActorSheet.itemAction,
+      command: ZaibatsuActorSheet.command
     }
   };
 
@@ -39,6 +46,7 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
         { id: "overview", label: "ZAIBATSU.Tabs.Overview" },
         { id: "skills", label: "ZAIBATSU.Tabs.Skills" },
         { id: "inventory", label: "ZAIBATSU.Tabs.Inventory" },
+        { id: "cyber", label: "Киберпространство" },
         { id: "biography", label: "ZAIBATSU.Tabs.Biography" }
       ]
     }
@@ -47,10 +55,17 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const system = this.actor.system;
+    const inventory = inventoryContext(this.actor, this.isEditable).map(item => ({ ...item,
+      typeLabel: game.i18n.localize(ITEM_TYPES[item.type]) }));
+    const cyber = system.cyber ?? {};
     return {
-      ...context, actor: this.actor, system, editable: this.isEditable,
+      ...context, actor: this.actor, system, editable: this.isEditable, gm: game.user.isGM,
       vehicle: system.vehicle, conditions: system.conditions, penalty: this.actor.penalty,
       woundLabel: WOUND_NAMES[system.wounds.severity],
+      favorites: inventory.filter(item => item.favorite),
+      cyber: { ...cyber, revealed: (cyber.revealed ?? []).map(entry => ({ node: entry.node, label: cardLabel(entry.card) })) },
+      cyberItems: inventory.filter(item => ["cyberdeck", "program"].includes(item.type)),
+      retroPoints: system.advancement.retroPoints ?? 0,
       slots: this.actor.items.reduce((sum, item) => sum + item.system.slots * item.system.quantity, 0),
       tabs: this._prepareTabs("primary"),
       attributes: Object.entries(ATTRIBUTES).map(([key, label]) => ({
@@ -63,13 +78,7 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
           .map(([key, skill]) => ({ key, label: skill.label, level: system.skills[key],
             untrained: system.skills[key] === null }))
       })),
-      inventory: this.actor.items.map(item => ({
-        id: item.id, name: item.name, img: item.img, typeLabel: game.i18n.localize(ITEM_TYPES[item.type]),
-        quantity: item.system.quantity, equipped: item.system.equipped, uuid: item.uuid,
-        isWeapon: item.type === "weapon", damage: item.system.damage,
-        ammo: item.system.ammunition, capacity: item.system.capacity,
-        ranged: item.type === "weapon" && item.system.kind !== "melee"
-      }))
+      inventory
     };
   }
 
@@ -158,13 +167,107 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
     const item = this.actor.items.get(target.dataset.itemId);
     return item.update({ "system.equipped": !item.system.equipped });
   }); }
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    game.zaibatsu.windows.add(this);
+    const container = this.element.querySelector(".zb-sheet");
+    this._createContextMenu(this._getItemContextOptions, ".zb-item-row[data-item-id]", { container, fixed: true });
+    this._createContextMenu(this._getItemContextOptions, ".zb-item-menu", { container, eventName: "click", fixed: true, relative: "target" });
+  }
+  _onClose(options) { game.zaibatsu.windows.delete(this); return super._onClose(options); }
+  _getItemContextOptions() {
+    const itemFor = target => this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
+    return ITEM_ACTIONS.map(action => ({ label: action.label, icon: action.icon,
+      visible: target => {
+        const item = itemFor(target);
+        return !!item && itemActions(this.actor, item, this.isEditable).some(entry => entry.id === action.id);
+      },
+      callback: target => this._performItemAction(itemFor(target), action.id)
+    }));
+  }
+  async _performItemAction(item, action) {
+    if (this.busy) return;
+    this.busy = true;
+    try {
+      return await notifyAction(async () => {
+        if (this.isEditable) await this.submit();
+        return performItemAction(this.actor, item, action, this.isEditable);
+      });
+    } finally { this.busy = false; if (this.rendered) await this.render({ force: true }); }
+  }
+  static itemAction(_event, target) { return this._performItemAction(this.actor.items.get(target.dataset.itemId), target.dataset.itemAction); }
+  static async command(_event, target) {
+    if (!this.isEditable || this.busy) return;
+    this.busy = true;
+    try { return await notifyAction(async () => { await this.submit(); return executeActorCommand(this.actor, target.dataset.command, target.dataset); }); }
+    finally { this.busy = false; if (this.rendered) await this.render({ force: true }); }
+  }
+  _onDrop(event) {
+    if (!this.isEditable) return null;
+    return notifyAction(() => serial(`sheet-drop:${this.actor.uuid}`, () => super._onDrop(event)));
+  }
+  async _onDropDocument(event, document) {
+    if (!this.isEditable) return null;
+    if (["JournalEntry", "JournalEntryPage"].includes(document.documentName)) return applyConcept(this.actor, document);
+    return super._onDropDocument(event, document);
+  }
   async _onDropItem(event, item) {
     if (!this.isEditable) return null;
+    const favorite = !!event.target.closest('[data-drop-zone="favorites"]');
+    if (item.parent?.uuid === this.actor.uuid && favorite) return item.update({ "system.favorite": true });
     if (item.parent?.uuid === this.actor.uuid) return super._onDropItem(event, item);
-    const data = item.toObject();
+    if (!Object.hasOwn(ITEM_TYPES, item.type)) throw new Error("Этот тип предмета не поддерживается системой Zaibatsu.");
+    const data = item.inCompendium ? game.items.fromCompendium(item, { clearFolder: true }) : item.toObject();
     delete data._id;
+    delete data.folder;
+    data.system.favorite = favorite;
     const [created] = await this.actor.createEmbeddedDocuments("Item", [data]);
     return created;
+  }
+  async _onDropActor(event, actor) {
+    if (!this.isEditable) return null;
+    if (this.actor.type === "vehicle" && actor.system.skills) {
+      if (event.target.closest('[data-drop-zone="passengers"]')) {
+        return this.actor.update({ "system.vehicle.passengers": [...new Set([...this.actor.system.vehicle.passengers, actor.uuid])] });
+      }
+      return this.actor.update({ "system.vehicle.driver": actor.uuid });
+    }
+    if (this.actor.type === "vehicle" || actor.type !== "vehicle") throw new Error("В лист агента можно перетащить транспорт; в лист транспорта — водителя или пассажира.");
+    const favorite = !!event.target.closest('[data-drop-zone="favorites"]');
+    if (actor.inCompendium) {
+      const existing = this.actor.items.find(item => item.getFlag("zaibatsu", "vehicleSource") === actor.uuid);
+      if (existing && await fromUuid(existing.system.linkedActorUuid)) {
+        if (favorite) await existing.update({ "system.favorite": true });
+        return existing;
+      }
+      if (!game.user.isGM && !game.user.can("ACTOR_CREATE")) throw new Error("Для импорта транспорта нужны права на создание акторов. Ведущий может импортировать его в мир, после чего перетащите транспорт из каталога акторов.");
+      const data = game.actors.fromCompendium(actor, { clearFolder: true });
+      delete data._id;
+      data.ownership = { default: 0, [game.user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+      const created = await foundry.documents.Actor.create(data);
+      try { return await this._linkVehicle(created, favorite, actor.uuid); }
+      catch (error) { await created.delete(); throw error; }
+    }
+    return this._linkVehicle(actor, favorite);
+  }
+  async _linkVehicle(vehicle, favorite, sourceUuid = "") {
+    const existing = this.actor.items.find(item => item.system.linkedActorUuid === vehicle.uuid
+      || (sourceUuid && item.getFlag("zaibatsu", "vehicleSource") === sourceUuid));
+    if (existing) {
+      await existing.update({ "system.linkedActorUuid": vehicle.uuid, "system.favorite": favorite || !!existing.system.favorite });
+      return existing;
+    }
+    const [item] = await this.actor.createEmbeddedDocuments("Item", [{ name: vehicle.name, type: "gear", img: vehicle.img,
+      flags: { zaibatsu: { vehicleSource: sourceUuid } },
+      system: { linkedActorUuid: vehicle.uuid, description: vehicle.system.biography, slots: 0, quantity: 1, favorite } }]);
+    return item;
+  }
+  async _onDropFolder(event, folder) {
+    if (!this.isEditable) return null;
+    if (folder.type !== "Item") throw new Error("В инвентарь можно перетащить папку предметов.");
+    for (const item of folder.contents) await this._onDropItem(event, item);
+    for (const child of folder.children ?? []) await this._onDropFolder(event, child.folder);
+    return folder;
   }
   _onDragStart(event) {
     const row = event.target.closest("[data-item-id]");
@@ -175,10 +278,14 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
 }
 
 export class VehicleSheet extends ZaibatsuActorSheet {
+  static DEFAULT_OPTIONS = { classes: ["zb-vehicle-sheet"] };
+  static TABS = {};
   static PARTS = { main: { template: "systems/zaibatsu/templates/actors/vehicle.hbs" } };
   async _prepareContext(options) {
     const context = await foundry.applications.sheets.ActorSheetV2.prototype._prepareContext.call(this, options);
-    return { ...context, actor: this.actor, system: this.actor.system, editable: this.isEditable,
+    const inventory = inventoryContext(this.actor, this.isEditable).map(item => ({ ...item, typeLabel: game.i18n.localize(ITEM_TYPES[item.type]) }));
+    return { ...context, actor: this.actor, system: this.actor.system, editable: this.isEditable, inventory,
+      passengers: await Promise.all(this.actor.system.vehicle.passengers.map(async uuid => ({ uuid, name: (await fromUuid(uuid))?.name ?? "Недоступный пассажир" }))),
       sizes: ["small", "medium", "large"].map(value => ({ value, label: { small: "Малый", medium: "Средний", large: "Большой" }[value], selected: this.actor.system.vehicle.size === value })),
       modes: [["ground", "Наземный транспорт"], ["grav", "Гравитранспорт"]].map(([value, label]) => ({ value, label, selected: this.actor.system.vehicle.mode === value })),
       drivers: [{ uuid: "", name: "Без водителя" }, ...game.actors.filter(actor => actor.system.skills).map(actor => ({ uuid: actor.uuid, name: actor.name, selected: this.actor.system.vehicle.driver === actor.uuid }))] };

@@ -1,6 +1,6 @@
 <div class="zb-sheet">
   <div class="zb-toolbar"><select name="actorUuid" aria-label="Агент">{{#each agents}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select><button type="button" data-action="do" data-command="sheet">Открыть лист</button><button type="button" data-action="do" data-command="creator">Создать агента</button>{{#if gm}}<button type="button" data-action="do" data-command="npc">NPC / андроид</button>{{/if}}<button type="button" data-action="do" data-command="vehicle">Транспорт</button></div>
-  <nav class="zb-tabs">{{#each tabs}}<button type="button" class="{{cssClass}}" data-action="tab" data-group="primary" data-tab="{{id}}">{{label}}</button>{{/each}}</nav>
+  <nav class="tabs zb-tabs">{{#each tabs}}<button type="button" class="{{cssClass}}" data-action="tab" data-group="primary" data-tab="{{id}}">{{label}}</button>{{/each}}</nav>
   <div class="zb-panel-content">
     <section class="tab {{tabs.actions.cssClass}}" data-group="primary" data-tab="actions">
       <h2>{{actor.name}} · {{system.profile}}</h2>
