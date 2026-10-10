@@ -1,0 +1,74 @@
+<div class="zb-sheet">
+  <header class="zb-header">
+    <img class="zb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}">
+    <div>
+      <span class="zb-eyebrow">ZAIBATSU / {{localize "ZAIBATSU.AgentFile"}}</span>
+      <input class="zb-name" name="name" value="{{actor.name}}" aria-label="{{localize 'ZAIBATSU.Fields.Name'}}" {{#unless editable}}disabled{{/unless}}>
+      <div class="zb-profile">{{localize "ZAIBATSU.Fields.Profile"}} <strong>{{system.profile}}</strong></div>
+    </div>
+  </header>
+  <div class="zb-toolbar"><button type="button" data-action="terminal">Терминал: бой, киберпространство, справочник</button><button type="button" data-action="unarmed" {{#unless editable}}disabled{{/unless}}>Рукопашная</button><button type="button" data-action="aid" {{#unless editable}}disabled{{/unless}}>Медпомощь</button></div>
+  <nav class="zb-tabs" aria-label="{{localize 'ZAIBATSU.Sheets.Actor'}}">
+    {{#each tabs}}
+    <button type="button" class="{{cssClass}}" data-action="tab" data-group="primary" data-tab="{{id}}">{{localize label}}</button>
+    {{/each}}
+  </nav>
+  <div class="zb-tab-body">
+    <section class="tab {{tabs.overview.cssClass}}" data-group="primary" data-tab="overview">
+      <div class="zb-field-grid">
+        <label>{{localize "ZAIBATSU.Fields.Concept"}}<input name="system.concept" value="{{system.concept}}" {{#unless editable}}disabled{{/unless}}></label>
+        <label>{{localize "ZAIBATSU.Fields.Age"}}<input type="number" name="system.age" value="{{system.age}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
+        <label>{{localize "ZAIBATSU.Fields.Rank"}}<input type="number" name="system.rank" value="{{system.rank}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
+        <label>{{localize "ZAIBATSU.Fields.Money"}}<input type="number" name="system.money" value="{{system.money}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
+      </div>
+      <h2>{{localize "ZAIBATSU.Tabs.Overview"}}</h2>
+      <div class="zb-attributes">
+        {{#each attributes}}
+        <article class="zb-attribute">
+          <h3>{{label}}</h3>
+          <label>{{localize "ZAIBATSU.Fields.Current"}}<input type="number" name="system.attributes.{{key}}.value" value="{{value}}" data-dtype="Number" min="0" max="15" step="1" {{#unless ../editable}}disabled{{/unless}}></label>
+          <label>{{localize "ZAIBATSU.Fields.Base"}}<input type="number" name="system.attributes.{{key}}.max" value="{{max}}" data-dtype="Number" min="0" max="15" step="1" {{#unless ../editable}}disabled{{/unless}}></label>
+          <button type="button" data-action="rollCharacteristic" data-attribute="{{key}}" {{#unless ../editable}}disabled{{/unless}}>{{localize "ZAIBATSU.Roll.Check"}} · +{{modifier}}</button>
+        </article>
+        {{/each}}
+      </div>
+      <p class="zb-hint">{{localize "ZAIBATSU.Hints.Characteristic"}}</p>
+      <h3>Ранения и состояния</h3><p>Состояние: {{woundLabel}} · Шок: {{system.wounds.shock}} · МОД: {{penalty}}</p>
+      {{#each conditions}}<div class="zb-item-row"><span>{{label}} · МОД {{modifier}}</span>{{#if ../editable}}<button type="button" data-action="clearCondition" data-id="{{id}}">Снять</button>{{/if}}</div>{{/each}}
+      {{#if vehicle}}<p>Андроид: ПБ {{vehicle.armor}} · повреждения {{vehicle.damage}}/{{vehicle.destroyedAt}}</p><label>Повреждения корпуса<input type="number" name="system.vehicle.damage" min="0" value="{{vehicle.damage}}" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
+    </section>
+    <section class="tab {{tabs.skills.cssClass}}" data-group="primary" data-tab="skills">
+      <p class="zb-hint">{{localize "ZAIBATSU.Hints.Skills"}}</p>
+      <div class="zb-skills">
+        {{#each skillGroups}}
+        <article class="zb-skill-group">
+          <h2>{{label}}</h2>
+          {{#each skills}}
+          <div class="zb-skill-row">
+            <label for="{{../../actor.id}}-{{key}}">{{label}}{{#if untrained}} <span class="zb-muted">−3</span>{{/if}}</label>
+            <input id="{{../../actor.id}}-{{key}}" type="number" name="system.skills.{{key}}" value="{{level}}" min="0" step="1" data-dtype="Number" placeholder="—" aria-label="{{label}}" {{#unless ../../editable}}disabled{{/unless}}>
+            <button type="button" data-action="rollSkill" data-skill="{{key}}" aria-label="{{localize 'ZAIBATSU.Roll.Check'}}: {{label}}" {{#unless ../../editable}}disabled{{/unless}}>2d6</button>
+          </div>
+          {{/each}}
+        </article>
+        {{/each}}
+      </div>
+    </section>
+    <section class="tab {{tabs.inventory.cssClass}} zb-inventory" data-group="primary" data-tab="inventory">
+      <div class="zb-section-heading"><h2>{{localize "ZAIBATSU.Tabs.Inventory"}}</h2><button type="button" data-action="createItem" {{#unless editable}}disabled{{/unless}}>{{localize "ZAIBATSU.Inventory.Add"}}</button></div>
+      <p>Занято {{slots}} мест; комфортный предел — 8. Предметы из каталога можно добавлять через терминал или перетаскивать из каталога мира.</p>
+      {{#each inventory}}
+      <article class="zb-item-row" draggable="true" data-item-id="{{id}}" data-document-id="{{id}}" data-uuid="{{uuid}}">
+        {{#if img}}<img class="zb-item-icon" src="{{img}}" alt="{{name}}" loading="lazy">{{/if}}
+        <div><strong>{{name}}</strong><small>{{typeLabel}} · {{localize "ZAIBATSU.Fields.Quantity"}}: {{quantity}}{{#if equipped}} · {{localize "ZAIBATSU.Fields.Equipped"}}{{/if}}{{#if isWeapon}} · {{damage}}{{#if ranged}} · {{ammo}}/{{capacity}}{{/if}}{{/if}}</small></div>
+        {{#if ../editable}}<button type="button" data-action="equip" data-item-id="{{id}}">{{#if equipped}}Снять{{else}}Надеть{{/if}}</button>{{#if isWeapon}}<button type="button" data-action="attack" data-item-id="{{id}}">Атака</button>{{#if ranged}}<button type="button" data-action="aim" data-item-id="{{id}}">Целиться</button><button type="button" data-action="reload" data-item-id="{{id}}">Зарядить</button>{{/if}}{{/if}}{{/if}}
+        <button type="button" data-action="editItem" data-item-id="{{id}}">{{localize "ZAIBATSU.Inventory.Open"}}</button>
+        {{#if ../editable}}<button type="button" data-action="deleteItem" data-item-id="{{id}}" aria-label="{{localize 'ZAIBATSU.Inventory.Delete'}}: {{name}}">×</button>{{/if}}
+      </article>
+      {{else}}<p class="zb-hint">{{localize "ZAIBATSU.Inventory.Empty"}}</p>{{/each}}
+    </section>
+    <section class="tab {{tabs.biography.cssClass}}" data-group="primary" data-tab="biography">
+      <label class="zb-biography">{{localize "ZAIBATSU.Fields.Biography"}}<textarea name="system.biography" rows="15" {{#unless editable}}disabled{{/unless}}>{{system.biography}}</textarea></label>
+    </section>
+  </div>
+</div>

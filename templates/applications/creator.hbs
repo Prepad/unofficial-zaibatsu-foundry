@@ -1,0 +1,14 @@
+<div class="zb-sheet zb-creator-content">
+  <header><span class="zb-eyebrow">ZAIBATSU / НОВОЕ ДОСЬЕ</span><h2>Создание агента</h2></header>
+  <div class="zb-toolbar"><button type="button" data-action="generate">Бросить характеристики, возраст и прошлое</button><button type="button" data-action="randomConcept">Случайная концепция · 3d6</button></div>
+  <div class="zb-field-grid"><label>Имя<input name="name" required></label><label>Возраст<input type="number" name="age" min="19" max="29" value="{{age}}"></label><label>Концепция<select name="concept">{{#each concepts}}<option value="{{id}}">{{name}}</option>{{/each}}</select></label><label>Навык концепции<select name="skill"></select></label></div>
+  <p class="zb-concept-kit"></p><h3>Шесть результатов 2d6: {{#each rolls}} {{value}} {{/each}}</h3>
+  <p>Распределите каждый результат один раз. Выберите наиболее высокую характеристику для концепции по своему усмотрению.</p>
+  <div class="zb-field-grid">{{#each attributes}}<label>{{label}}<select name="{{key}}">{{#each rolls}}<option value="{{index}}" {{#if selected}}selected{{/if}}>Бросок {{index}}: {{value}}</option>{{/each}}</select></label>{{/each}}</div>
+  <p class="zb-creator-hints"></p><h3>Дополнительные навыки · уровень 1</h3>
+  <div class="zb-choice-grid">{{#each skills}}<label><input type="checkbox" name="extraSkill" value="{{key}}">{{label}}</label>{{/each}}</div>
+  <h3>Ретрогеника · до 20 очков</h3><div class="zb-choice-grid">{{#each adaptations}}<label title="{{system.description}}"><input type="checkbox" name="adaptation" value="{{id}}">{{name}} · {{system.points}}</label>{{/each}}</div>
+  <label>Прошлое и описание<textarea name="biography" rows="5">{{biography}}</textarea></label>
+  <p>Базовая подготовка: пять навыков 0. Начальное имущество: автопистолет, гарнитура, ¥4000 и комплект концепции. Контакт записывается в досье.</p>
+  <button type="submit" {{#unless hasRolls}}disabled{{/unless}}>Создать персонажа</button>
+</div>

@@ -1,0 +1,114 @@
+{
+  "TYPES.Actor.character": "Агент",
+  "TYPES.Actor.npc": "Персонаж ведущего",
+  "TYPES.Item.weapon": "Оружие",
+  "TYPES.Item.armor": "Броня",
+  "TYPES.Item.gear": "Снаряжение",
+  "TYPES.Item.retrogenic": "Ретрогеника",
+  "TYPES.Item.cyberdeck": "Кибердека",
+  "TYPES.Item.program": "Программа",
+  "ZAIBATSU": {
+    "AgentFile": "Досье агента",
+    "Sheets": {
+      "Actor": "Лист Zaibatsu",
+      "Item": "Предмет Zaibatsu"
+    },
+    "Tabs": {
+      "Overview": "Характеристики",
+      "Skills": "Навыки",
+      "Inventory": "Снаряжение",
+      "Biography": "Биография"
+    },
+    "Attributes": {
+      "Strength": "Сила",
+      "Dexterity": "Ловкость",
+      "Endurance": "Выносливость",
+      "Intelligence": "Интеллект",
+      "Education": "Образование",
+      "Social": "Социальное влияние"
+    },
+    "SkillGroups": {
+      "Combat": "Боевые",
+      "Social": "Социальные",
+      "Technical": "Технические",
+      "Street": "Уличные"
+    },
+    "ItemTypes": {
+      "Weapon": "Оружие",
+      "Armor": "Броня",
+      "Gear": "Снаряжение",
+      "Retrogenic": "Ретрогеника",
+      "Cyberdeck": "Кибердека",
+      "Program": "Программа"
+    },
+    "Fields": {
+      "Name": "Название",
+      "Type": "Тип",
+      "Profile": "УПП",
+      "Concept": "Концепция",
+      "Age": "Возраст",
+      "Rank": "Ранг",
+      "Money": "Средства, ¥",
+      "Current": "Текущее",
+      "Base": "Исходное",
+      "Quantity": "Количество",
+      "Price": "Цена, ¥",
+      "Equipped": "Используется",
+      "Skill": "Навык",
+      "Damage": "Формула урона",
+      "Range": "Дистанция, м",
+      "Ammunition": "Боеприпасы",
+      "Protection": "Пункты брони",
+      "Points": "Очки ретрогеники",
+      "Rating": "Рейтинг",
+      "Description": "Описание",
+      "Biography": "Прошлое, мотивация и контакты"
+    },
+    "Hints": {
+      "Characteristic": "Проверка: 2d6 + половина текущей характеристики (вниз) + МОД против 10+. Исходное значение используется для учёта восстановления.",
+      "Skills": "Пустое поле — навык отсутствует, штраф −3. Уровень 0 — обучение есть, штрафа нет. Проверка против 8+."
+    },
+    "Inventory": {
+      "Add": "Добавить предмет",
+      "Open": "Открыть",
+      "Delete": "Удалить",
+      "Empty": "Добавьте оружие, броню, снаряжение или программы."
+    },
+    "Roll": {
+      "Check": "Проверка",
+      "Submit": "Бросить",
+      "Modifier": "МОД",
+      "Base": "Бонус / штраф",
+      "Target": "Порог",
+      "Effect": "Эффект",
+      "ModifierHint": "Укажите общий модификатор сложности и обстоятельств. Рутинная задача: +2; обычная: 0; сложная: −2; очень сложная: −4; невероятная: −6.",
+      "InvalidModifier": "Модификатор должен быть целым числом."
+    },
+    "Outcomes": {
+      "success": "Успех",
+      "failure": "Провал",
+      "exceptionalSuccess": "Исключительный успех",
+      "exceptionalFailure": "Исключительный провал"
+    },
+    "Errors": {
+      "OwnerRequired": "Для этого действия нужны права владельца персонажа.",
+      "NameRequired": "Укажите название предмета."
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Агент",
+      "npc": "NPC",
+      "android": "Андроид",
+      "vehicle": "Транспорт"
+    },
+    "Item": {
+      "weapon": "Оружие",
+      "armor": "Броня",
+      "gear": "Снаряжение",
+      "retrogenic": "Ретрогеника",
+      "cyberdeck": "Кибердека",
+      "program": "Программа"
+    }
+  }
+}

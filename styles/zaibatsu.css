@@ -1,0 +1,73 @@
+.zaibatsu {
+  --zb-bg: #151c24;
+  --zb-panel: #202b36;
+  --zb-line: #3b4b59;
+  --zb-text: #edf2ed;
+  --zb-muted: #a8b7c0;
+  --zb-accent: #bada86;
+  color-scheme: dark;
+}
+.zaibatsu .window-content { background: var(--zb-bg); color: var(--zb-text); padding: 18px; }
+.zaibatsu .zb-sheet { display: flex; flex-direction: column; gap: 18px; height: 100%; min-height: 0; }
+.zaibatsu .zb-header { display: grid; grid-template-columns: 78px 1fr; align-items: center; gap: 16px; }
+.zaibatsu .zb-portrait { width: 78px; height: 78px; object-fit: cover; border: 1px solid var(--zb-line); border-radius: 4px; cursor: pointer; }
+.zaibatsu .zb-eyebrow { color: var(--zb-accent); font: 11px monospace; letter-spacing: .12em; }
+.zaibatsu input.zb-name { font-size: 25px; font-weight: 700; margin: 5px 0; height: 40px; }
+.zaibatsu .zb-profile { font-size: 12px; color: var(--zb-muted); }
+.zaibatsu .zb-profile strong { font: 17px monospace; color: var(--zb-accent); letter-spacing: .14em; }
+.zaibatsu .zb-tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--zb-line); padding-bottom: 10px; }
+.zaibatsu .zb-tabs button { flex: 1; }
+.zaibatsu .zb-tabs .active { border-color: var(--zb-accent); color: var(--zb-accent); }
+.zaibatsu .zb-tab-body { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+.zaibatsu .tab { display: none; }
+.zaibatsu .tab.active { display: block; }
+.zaibatsu .zb-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.zaibatsu label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--zb-muted); }
+.zaibatsu input, .zaibatsu select, .zaibatsu textarea { background: var(--zb-panel); border: 1px solid var(--zb-line); color: var(--zb-text); border-radius: 4px; width: 100%; padding: 5px 8px; }
+.zaibatsu input:focus, .zaibatsu select:focus, .zaibatsu textarea:focus { outline: 1px solid var(--zb-accent); }
+.zaibatsu input:disabled, .zaibatsu select:disabled, .zaibatsu textarea:disabled { opacity: .75; }
+.zaibatsu button { background: var(--zb-panel); color: var(--zb-text); border: 1px solid var(--zb-line); border-radius: 4px; padding: 6px 9px; }
+.zaibatsu button:hover:not(:disabled) { border-color: var(--zb-accent); color: var(--zb-accent); box-shadow: none; }
+.zaibatsu h2 { font-size: 16px; color: var(--zb-accent); border-bottom: 1px solid var(--zb-line); padding-bottom: 8px; }
+.zaibatsu h3 { font-size: 14px; margin: 0 0 12px; }
+.zaibatsu .zb-attributes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.zaibatsu .zb-attribute { background: var(--zb-panel); border: 1px solid var(--zb-line); padding: 14px; border-radius: 5px; }
+.zaibatsu .zb-attribute label { display: grid; grid-template-columns: 1fr 50px; align-items: center; margin-bottom: 9px; }
+.zaibatsu .zb-attribute button { width: 100%; font-size: 12px; }
+.zaibatsu .zb-skills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.zaibatsu .zb-skill-row { display: grid; grid-template-columns: 1fr 48px 48px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.zaibatsu .zb-skill-row label { display: block; color: var(--zb-text); }
+.zaibatsu .zb-muted, .zaibatsu .zb-hint { color: var(--zb-muted); font-size: 12px; line-height: 1.55; }
+.zaibatsu .zb-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.zaibatsu .zb-section-heading h2 { margin: 0; flex: 1; }
+.zaibatsu .zb-item-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--zb-line); }
+.zaibatsu .zb-item-row > div, .zaibatsu .zb-item-row > span { flex: 1; min-width: 170px; }
+.zaibatsu .zb-item-row[hidden] { display: none; }
+.zaibatsu .zb-item-row small { display: block; color: var(--zb-muted); margin-top: 5px; }
+.zaibatsu .zb-item-icon { width: 48px; height: 48px; flex: 0 0 48px; object-fit: cover; border: 1px solid var(--zb-line); border-radius: 4px; }
+.zaibatsu .zb-checkbox { flex-direction: row; align-items: center; }
+.zaibatsu .zb-checkbox input { width: 18px; height: 18px; }
+.zaibatsu .zb-biography textarea { min-height: 220px; resize: vertical; line-height: 1.6; }
+.zb-chat-check { font-size: 12px; line-height: 1.5; }
+.zb-chat-check .zb-success { color: #427425; font-weight: 700; }
+.zb-chat-check .zb-failure { color: #a33636; font-weight: 700; }
+.zaibatsu .zb-panel-content { flex: 1; overflow-y: auto; min-height: 0; }
+.zaibatsu .zb-creator-content { overflow-y: auto; }
+.zaibatsu .zb-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.zaibatsu .zb-toolbar select, .zaibatsu .zb-toolbar input { flex: 1; min-width: 150px; }
+.zaibatsu .zb-action-grid, .zaibatsu .zb-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+.zaibatsu .zb-choice-grid label, .zaibatsu label:has(input[type="checkbox"]) { flex-direction: row; align-items: center; }
+.zaibatsu input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 18px; }
+.zaibatsu .zb-dialog { display: grid; gap: 12px; max-height: 70vh; overflow-y: auto; padding: 8px; }
+.zaibatsu.zb-dialog { display: grid; gap: 12px; max-height: 70vh; overflow-y: auto; padding: 8px; }
+.zaibatsu table { background: var(--zb-panel); width: 100%; border-collapse: collapse; }
+.zaibatsu td, .zaibatsu th { padding: 8px; text-align: left; border-bottom: 1px solid var(--zb-line); }
+.zb-chat { line-height: 1.5; }
+.zb-chat button { margin: 8px 0; }
+.zaibatsu .zb-creator-hints { position: sticky; top: 0; background: var(--zb-bg); padding: 10px; border: 1px solid var(--zb-accent); z-index: 1; }
+.zaibatsu .window-content:has(.zb-dialog) { max-height: 80vh; overflow-y: auto; }
+@media (max-width: 650px) {
+  .zaibatsu .zb-attributes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .zaibatsu .zb-skills { grid-template-columns: 1fr; }
+  .zaibatsu .zb-action-grid, .zaibatsu .zb-choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

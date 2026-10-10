@@ -1,0 +1,139 @@
+{
+  "id": "zaibatsu",
+  "title": "Zaibatsu",
+  "description": "Самостоятельная система Zaibatsu: персонажи, бой, ранения, транспорт, создание агентов и карточное киберпространство. Для Foundry VTT 14.",
+  "version": "1.1.0",
+  "compatibility": {
+    "minimum": "14",
+    "maximum": "14"
+  },
+  "authors": [
+    {
+      "name": "Zaibatsu project"
+    }
+  ],
+  "esmodules": [
+    "zaibatsu.mjs"
+  ],
+  "styles": [
+    "styles/zaibatsu.css"
+  ],
+  "languages": [
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {},
+      "npc": {},
+      "android": {},
+      "vehicle": {}
+    },
+    "Item": {
+      "weapon": {},
+      "armor": {},
+      "gear": {},
+      "retrogenic": {},
+      "cyberdeck": {},
+      "program": {}
+    }
+  },
+  "grid": {
+    "distance": 1,
+    "units": "m"
+  },
+  "primaryTokenAttribute": "attributes.endurance",
+  "packs": [
+    {
+      "name": "weapons",
+      "label": "Zaibatsu · Оружие",
+      "type": "Item",
+      "system": "zaibatsu",
+      "path": "packs/weapons",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "armor",
+      "label": "Zaibatsu · Броня",
+      "type": "Item",
+      "system": "zaibatsu",
+      "path": "packs/armor",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "equipment",
+      "label": "Zaibatsu · Снаряжение и препараты",
+      "type": "Item",
+      "system": "zaibatsu",
+      "path": "packs/equipment",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "adaptations",
+      "label": "Zaibatsu · Ретрогеника",
+      "type": "Item",
+      "system": "zaibatsu",
+      "path": "packs/adaptations",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "cyberdecks",
+      "label": "Zaibatsu · Кибердеки",
+      "type": "Item",
+      "system": "zaibatsu",
+      "path": "packs/cyberdecks",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "programs",
+      "label": "Zaibatsu · Программы",
+      "type": "Item",
+      "system": "zaibatsu",
+      "path": "packs/programs",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "vehicles",
+      "label": "Zaibatsu · Транспорт",
+      "type": "Actor",
+      "system": "zaibatsu",
+      "path": "packs/vehicles",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "concepts",
+      "label": "Zaibatsu · Концепции агентов",
+      "type": "JournalEntry",
+      "system": "zaibatsu",
+      "path": "packs/concepts",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ]
+}

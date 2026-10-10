@@ -1,0 +1,38 @@
+<div class="zb-sheet">
+  <div class="zb-toolbar"><select name="actorUuid" aria-label="Агент">{{#each agents}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select><button type="button" data-action="do" data-command="sheet">Открыть лист</button><button type="button" data-action="do" data-command="creator">Создать агента</button>{{#if gm}}<button type="button" data-action="do" data-command="npc">NPC / андроид</button>{{/if}}<button type="button" data-action="do" data-command="vehicle">Транспорт</button></div>
+  <nav class="zb-tabs">{{#each tabs}}<button type="button" class="{{cssClass}}" data-action="tab" data-group="primary" data-tab="{{id}}">{{label}}</button>{{/each}}</nav>
+  <div class="zb-panel-content">
+    <section class="tab {{tabs.actions.cssClass}}" data-group="primary" data-tab="actions">
+      <h2>{{actor.name}} · {{system.profile}}</h2>
+      <div class="zb-action-grid"><button data-action="do" data-command="attack">Атака оружием</button><button data-action="do" data-command="unarmed">Рукопашная / захват</button><button data-action="do" data-command="aim">Прицеливание</button><button data-action="do" data-command="reload">Перезарядка</button><button data-action="do" data-command="aid">Медицинская помощь</button><button data-action="do" data-command="opposed">Встречная проверка</button><button data-action="do" data-command="retrogen">Использовать ретрогенику</button><button data-action="do" data-command="manualDamage">Урон вручную</button><button data-action="do" data-command="heal">Восстановление / ремонт</button><button data-action="do" data-command="condition">Добавить состояние</button><button data-action="do" data-command="escapeHold">Освободиться из захвата</button><button data-action="do" data-command="contact">Добавить контакт</button>{{#if gm}}<button data-action="do" data-command="time">Пропустить время</button><button data-action="do" data-command="advancement">ОП и продвижение</button>{{/if}}{{#if vehicle}}<button data-action="do" data-command="collision">Столкновение / падение</button>{{/if}}</div>
+      {{#if agent}}<button data-action="do" data-command="rest">{{#if system.recovery.resting}}Завершить отдых{{else}}Начать отдых{{/if}}</button><button data-action="do" data-command="identity">Использовать ID-карту</button>{{/if}}<p>Состояние: {{woundLabel}} · шок {{system.wounds.shock}} · общий МОД {{penalty}} · свободная ретрогеника {{retroPoints}}</p>
+      {{#if transport}}<div class="zb-toolbar"><button data-action="do" data-command="crew">Назначить экипаж</button><button data-action="do" data-command="drive">Вождение: манёвры и таран</button></div>{{/if}}
+      {{#each conditions}}<div class="zb-item-row"><span>{{label}} · {{remaining}} · МОД {{modifier}}</span><button data-action="do" data-command="clearCondition" data-id="{{id}}">Снять</button></div>{{/each}}
+      <h3>Контакты</h3>{{#each system.contacts}}<p><strong>{{name}}</strong> · {{notes}}</p>{{else}}<p>Контактов пока нет.</p>{{/each}}
+    </section>
+    <section class="tab {{tabs.combat.cssClass}}" data-group="primary" data-tab="combat">
+      <div class="zb-section-heading"><h2>Раунд {{combat.round}} · {{phase}}</h2>{{#if gm}}<button data-action="do" data-command="phase">Начать / завершить фазу</button>{{/if}}</div>
+      <p>Раунд 6 секунд. Заявки → ближний бой всех участников → последствия → дальний бой всех участников → последствия. Урон применяется при завершении фазы; выбор брони и характеристики доступен в карточке атаки.</p>
+      <div class="zb-toolbar"><button data-action="do" data-command="declare">Заявить действие</button><button data-action="do" data-command="major">Главное действие</button><button data-action="do" data-command="minor">Малое действие</button></div>
+      <table><thead><tr><th>Участник</th><th>Заявка</th><th>Главное действие</th><th>Прицеливание</th></tr></thead><tbody>{{#each combatants}}<tr><td>{{name}}</td><td>{{declaration}}</td><td>{{action}}</td><td>+{{aim}}</td></tr>{{/each}}</tbody></table>
+      <h3>Ожидают разрешения</h3>{{#each pending}}<p>{{targetName}}: {{amount}} {{type}} · {{phase}} {{#if chosen}}· распределение выбрано{{/if}}</p>{{else}}<p>Нет ожидающих попаданий.</p>{{/each}}
+    </section>
+    <section class="tab {{tabs.cyber.cssClass}}" data-group="primary" data-tab="cyber">
+      <div class="zb-toolbar"><button data-action="do" data-command="connect">Подключиться</button><button data-action="do" data-command="disconnect">Отключиться</button>{{#if gm}}<button data-action="do" data-command="network">Создать сеть</button>{{/if}}</div>
+      <h2>{{cyber.networkName}}</h2><p>{{#if cyber.connected}}Соединение активно{{else}}Нет соединения{{/if}} · неудачные попытки {{cyber.failures}} / безопасных {{cyber.safeFailures}}</p>
+      {{#if cyber.ice}}<p>ЛЕД · рейтинг {{cyber.ice.rating}}</p><button data-action="do" data-command="breakICE">Выбрать ЛЕДокол</button>{{/if}}
+      {{#if cyber.blackICE}}<p>Чёрный ЛЕД · рейтинг {{cyber.blackICE.rating}} · персонаж в ловушке</p><button data-action="do" data-command="escape">Попытаться вырваться · 2 минуты</button>{{/if}}
+      {{#if cyber.connected}}<div class="zb-action-grid">{{#each cyber.networkNodes}}<button data-action="do" data-command="guess" data-node="{{id}}">{{name}} · {{#if easy}}цвет{{else}}масть{{/if}}</button>{{/each}}</div><div class="zb-toolbar"><button data-action="do" data-command="procedure">Специальная процедура</button><button data-action="do" data-command="remoteCommand">Удалённая команда</button></div>{{/if}}
+      <h3>Программы</h3>{{#each programs}}<p>{{name}} · рейтинг {{rating}} {{#if used}}· использована в сессии{{/if}}</p>{{/each}}
+      <h3>Открытые карты</h3>{{#each cyber.revealed}}<p>{{node}} · {{label}}</p>{{/each}}
+      <h3>Журнал соединения</h3><ol>{{#each cyber.log}}<li>{{this}}</li>{{/each}}</ol>
+      {{#unless networks.length}}<p>Ведущему нужно создать сеть кнопкой выше.</p>{{/unless}}
+      {{#if gm}}<h3>Управление сетями</h3><button data-action="do" data-command="authority">Назначить ведущего правил</button>{{#each networks}}<button data-action="do" data-command="manageNetwork" data-uuid="{{uuid}}">{{name}}</button>{{/each}}{{/if}}
+    </section>
+    <section class="tab {{tabs.catalog.cssClass}}" data-group="primary" data-tab="catalog">
+      <div class="zb-toolbar"><input name="catalogSearch" type="search" placeholder="Поиск по названию и типу" aria-label="Поиск">{{#if gm}}<button data-action="do" data-command="importAll">Добавить справочник в мир</button>{{/if}}</div>
+      <p>«Добавить» помещает предмет в выбранный лист. «Купить» списывает указанную цену. Адаптации можно устанавливать за свободные очки ретрогеники.</p>
+      {{#each catalog}}<article class="zb-item-row" data-search="{{name}} {{typeLabel}}">{{#if img}}<img class="zb-item-icon" src="{{img}}" alt="{{name}}" loading="lazy">{{/if}}<div><strong>{{name}}</strong><small>{{typeLabel}} · {{priceLabel}}{{#if isRetrogenic}} · {{system.points}} очков{{/if}}</small></div><button data-action="do" data-command="inspect" data-id="{{id}}">Сведения</button><button data-action="do" data-command="import" data-id="{{id}}">Добавить</button>{{#if isRetrogenic}}<button data-action="do" data-command="adaptation" data-id="{{id}}">Установить</button>{{else}}<button data-action="do" data-command="buy" data-id="{{id}}">Купить</button>{{/if}}</article>{{/each}}
+    </section>
+  </div>
+</div>
