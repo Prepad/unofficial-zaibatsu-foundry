@@ -13,7 +13,7 @@
     <div>
       <span class="zb-eyebrow">ZAIBATSU / {{localize "ZAIBATSU.AgentFile"}}</span>
       <input class="zb-name" name="name" value="{{actor.name}}" aria-label="{{localize 'ZAIBATSU.Fields.Name'}}" {{#unless editable}}disabled{{/unless}}>
-      <div class="zb-profile">{{localize "ZAIBATSU.Fields.Profile"}} <strong>{{system.profile}}</strong></div>
+      <div class="zb-profile" title="Универсальный персональный профиль. СИЛ, ЛОВ, ВЫН, ИНТ, ОБР, СОЦ; A–F означают 10–15.">{{localize "ZAIBATSU.Fields.Profile"}} <strong>{{system.profile}}</strong><small>СИЛ · ЛОВ · ВЫН · ИНТ · ОБР · СОЦ</small></div>
     </div>
   </header>
   <nav class="tabs zb-tabs" aria-label="{{localize 'ZAIBATSU.Sheets.Actor'}}">

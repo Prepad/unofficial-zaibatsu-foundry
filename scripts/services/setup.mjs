@@ -22,7 +22,7 @@ export async function migrate() {
   for (const actor of game.actors) await actor.processDestroyedCrew();
   if (game.settings.get("zaibatsu", "migrationVersion") < 2) {
     for (const actor of game.actors) await actor.update({ "system.schemaVersion": 2 });
-    for (const item of [...game.items, ...game.actors.flatMap(actor => [...actor.items])]) {
+    for (const item of [...game.items, ...[...game.actors].flatMap(actor => [...actor.items])]) {
       const update = { "system.schemaVersion": 2 };
       if (item.type === "weapon" && !item.system.capacity && item.system.ammunition) update["system.capacity"] = item.system.ammunition;
       await item.update(update);

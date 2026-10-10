@@ -15,6 +15,7 @@
 .zaibatsu input.zb-name { font-size: 25px; font-weight: 700; margin: 5px 0; height: 40px; }
 .zaibatsu .zb-profile { font-size: 12px; color: var(--zb-muted); }
 .zaibatsu .zb-profile strong { font: 17px monospace; color: var(--zb-accent); letter-spacing: .14em; }
+.zaibatsu .zb-profile small { display: block; font-size: 11px; margin-top: 3px; }
 .zaibatsu .zb-tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--zb-line); padding-bottom: 10px; }
 .zaibatsu .zb-tabs { flex: 0 0 auto; }
 .zaibatsu .zb-tabs button { flex: 1; }
@@ -22,9 +23,9 @@
 .zaibatsu .zb-tab-body { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
 .zaibatsu .tab { display: none; }
 .zaibatsu .tab.active { display: block; }
-.zaibatsu .zb-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
-.zaibatsu label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--zb-muted); }
-.zaibatsu input, .zaibatsu select, .zaibatsu textarea { background: var(--zb-panel); border: 1px solid var(--zb-line); color: var(--zb-text); border-radius: 4px; width: 100%; padding: 5px 8px; }
+.zaibatsu .zb-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; align-items: start; }
+.zaibatsu label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; line-height: 1.4; min-width: 0; color: var(--zb-muted); }
+.zaibatsu input:not([type="checkbox"]):not([type="radio"]), .zaibatsu select, .zaibatsu textarea { background: var(--zb-panel); border: 1px solid var(--zb-line); color: var(--zb-text); border-radius: 4px; width: 100%; padding: 5px 8px; }
 .zaibatsu input:focus, .zaibatsu select:focus, .zaibatsu textarea:focus { outline: 1px solid var(--zb-accent); }
 .zaibatsu input:disabled, .zaibatsu select:disabled, .zaibatsu textarea:disabled { opacity: .75; }
 .zaibatsu button { background: var(--zb-panel); color: var(--zb-text); border: 1px solid var(--zb-line); border-radius: 4px; padding: 6px 9px; }
@@ -56,8 +57,6 @@
 .zaibatsu .zb-sheet-footer { flex: 0 0 auto; border-top: 1px solid var(--zb-line); padding-top: 8px; }
 .zaibatsu.zb-vehicle-sheet .zb-sheet { overflow-y: auto; }
 .zaibatsu .zb-item-icon { width: 48px; height: 48px; flex: 0 0 48px; object-fit: cover; border: 1px solid var(--zb-line); border-radius: 4px; }
-.zaibatsu .zb-checkbox { flex-direction: row; align-items: center; }
-.zaibatsu .zb-checkbox input { width: 18px; height: 18px; }
 .zaibatsu .zb-biography textarea { min-height: 220px; resize: vertical; line-height: 1.6; }
 .zb-chat-check { font-size: 12px; line-height: 1.5; }
 .zb-chat-check .zb-success { color: #427425; font-weight: 700; }
@@ -67,8 +66,11 @@
 .zaibatsu .zb-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .zaibatsu .zb-toolbar select, .zaibatsu .zb-toolbar input { flex: 1; min-width: 150px; }
 .zaibatsu .zb-action-grid, .zaibatsu .zb-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
-.zaibatsu .zb-choice-grid label, .zaibatsu label:has(input[type="checkbox"]) { flex-direction: row; align-items: center; }
-.zaibatsu input[type="checkbox"] { width: 18px; height: 18px; flex: 0 0 18px; }
+.zaibatsu .zb-choice-grid label, .zaibatsu label:has(> input[type="checkbox"]) { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; }
+.zaibatsu input[type="checkbox"], .zaibatsu input[type="radio"] { appearance: auto; -webkit-appearance: auto; accent-color: var(--zb-accent); width: 18px; height: 18px; min-width: 18px; flex: 0 0 18px; padding: 0; margin: 0; border: 0; background: transparent; }
+.zaibatsu input[type="checkbox"]::before, .zaibatsu input[type="checkbox"]::after, .zaibatsu input[type="radio"]::before, .zaibatsu input[type="radio"]::after { content: none; display: none; }
+.zaibatsu.zb-item-sheet .window-content { overflow-y: auto; }
+.zaibatsu.zb-item-sheet .zb-sheet { height: auto; }
 .zaibatsu .zb-dialog { display: grid; gap: 12px; max-height: 70vh; overflow-y: auto; padding: 8px; }
 .zaibatsu.zb-dialog { display: grid; gap: 12px; max-height: 70vh; overflow-y: auto; padding: 8px; }
 .zaibatsu table { background: var(--zb-panel); width: 100%; border-collapse: collapse; }

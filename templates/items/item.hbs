@@ -8,8 +8,8 @@
     <label>Места в инвентаре<input type="number" name="system.slots" min="0" value="{{system.slots}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>{{localize "ZAIBATSU.Fields.Quantity"}}<input type="number" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
     <label>{{localize "ZAIBATSU.Fields.Price"}}<input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
-    <label class="zb-checkbox"><input type="checkbox" name="system.equipped" {{#if system.equipped}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>{{localize "ZAIBATSU.Fields.Equipped"}}</label>
-    {{#if owned}}<label class="zb-checkbox"><input type="checkbox" name="system.favorite" {{#if system.favorite}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>Избранное в листе персонажа</label>{{/if}}
+    <label class="zb-checkbox"><input type="checkbox" name="system.equipped" {{#if system.equipped}}checked{{/if}} {{#unless editable}}disabled{{/unless}}><span>{{localize "ZAIBATSU.Fields.Equipped"}}</span></label>
+    {{#if owned}}<label class="zb-checkbox"><input type="checkbox" name="system.favorite" {{#if system.favorite}}checked{{/if}} {{#unless editable}}disabled{{/unless}}><span>Избранное в листе персонажа</span></label>{{/if}}
     {{#if isWeapon}}
     <label>Вид оружия<select name="system.kind" {{#unless editable}}disabled{{/unless}}>{{#each kinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>Тип урона<select name="system.damageType" {{#unless editable}}disabled{{/unless}}>{{#each damageTypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
@@ -21,9 +21,9 @@
     <label>МОД оружия<input name="system.attackBonus" type="number" value="{{system.attackBonus}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>МОД прицела<input name="system.sightBonus" type="number" min="0" value="{{system.sightBonus}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>Предельная дальность (0 — 8× эффективной)<input name="system.maximumRange" type="number" min="0" value="{{system.maximumRange}}" {{#unless editable}}disabled{{/unless}}></label>
-    <label><input name="system.laser" type="checkbox" {{#if system.laser}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>Лазер</label>
-    <label><input name="system.shotgun" type="checkbox" {{#if system.shotgun}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>Дробь</label>
-    <label><input name="system.jammed" type="checkbox" {{#if system.jammed}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>Задержка / требуется перезарядка</label>
+    <label class="zb-checkbox"><input name="system.laser" type="checkbox" {{#if system.laser}}checked{{/if}} {{#unless editable}}disabled{{/unless}}><span>Лазер</span></label>
+    <label class="zb-checkbox"><input name="system.shotgun" type="checkbox" {{#if system.shotgun}}checked{{/if}} {{#unless editable}}disabled{{/unless}}><span>Дробь</span></label>
+    <label class="zb-checkbox"><input name="system.jammed" type="checkbox" {{#if system.jammed}}checked{{/if}} {{#unless editable}}disabled{{/unless}}><span>Задержка / требуется перезарядка</span></label>
     <label>{{localize "ZAIBATSU.Fields.Skill"}}<select name="system.skill" {{#unless editable}}disabled{{/unless}}>{{#each skills}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>{{localize "ZAIBATSU.Fields.Damage"}}<input name="system.damage" value="{{system.damage}}" {{#unless editable}}disabled{{/unless}}></label>
     <label>{{localize "ZAIBATSU.Fields.Range"}}<input type="number" name="system.range" value="{{system.range}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>
@@ -32,7 +32,7 @@
     {{#if isArmor}}<label>{{localize "ZAIBATSU.Fields.Protection"}}<input type="number" name="system.protection" value="{{system.protection}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
     {{#if isRetrogenic}}<label>{{localize "ZAIBATSU.Fields.Points"}}<input type="number" name="system.points" value="{{system.points}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
     {{#if isRetrogenic}}<label>Ключ адаптации<input name="system.effectKey" value="{{system.effectKey}}" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
-    {{#if isProgram}}<label><input name="system.icebreaker" type="checkbox" {{#if system.icebreaker}}checked{{/if}} {{#unless editable}}disabled{{/unless}}>ЛЕДокол (обычные программы не ломают ЛЕД)</label>{{/if}}
+    {{#if isProgram}}<label class="zb-checkbox"><input name="system.icebreaker" type="checkbox" {{#if system.icebreaker}}checked{{/if}} {{#unless editable}}disabled{{/unless}}><span>ЛЕДокол (обычные программы не ломают ЛЕД)</span></label>{{/if}}
     {{#if hasRating}}<label>{{localize "ZAIBATSU.Fields.Rating"}}<input type="number" name="system.rating" value="{{system.rating}}" data-dtype="Number" min="0" step="1" {{#unless editable}}disabled{{/unless}}></label>{{/if}}
   </div>
   <label class="zb-biography">{{localize "ZAIBATSU.Fields.Description"}}<textarea name="system.description" rows="9" {{#unless editable}}disabled{{/unless}}>{{system.description}}</textarea></label>
