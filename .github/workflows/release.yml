@@ -1,0 +1,60 @@
+name: Publish Foundry system
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Package runtime files
+        id: package
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+
+          manifest = json.loads(Path("system.json").read_text(encoding="utf-8"))
+          version = manifest["version"]
+          tag = os.environ["GITHUB_REF_NAME"]
+          assert tag == f"v{version}", "Tag and manifest version must match"
+          archive = f"zaibatsu-{version}.zip"
+          expected_download = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{tag}/{archive}"
+          assert manifest["download"] == expected_download, "Manifest must point to this release"
+          files = [Path("system.json"), Path("zaibatsu.mjs")]
+          for directory in ["scripts", "templates", "styles", "lang", "assets", "packs"]:
+              files.extend(path for path in Path(directory).rglob("*") if path.is_file())
+          with ZipFile(archive, "w", compression=ZIP_DEFLATED) as output:
+              for path in sorted(files):
+                  output.write(path, f"zaibatsu/{path.as_posix()}")
+          with ZipFile(archive) as packaged:
+              assert packaged.testzip() is None, "ZIP integrity check failed"
+              assert len(packaged.namelist()) == len(files)
+              assert json.loads(packaged.read("zaibatsu/system.json")) == manifest
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"archive={archive}\nversion={version}\n")
+          PY
+
+      - name: Publish ZIP and install manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ARCHIVE: ${{ steps.package.outputs.archive }}
+          RELEASE_VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$RELEASE_ARCHIVE" system.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "Zaibatsu $RELEASE_VERSION" \
+            --notes "Zaibatsu for Foundry VTT 14, including compendiums and illustrations."
