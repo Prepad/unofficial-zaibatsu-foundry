@@ -182,7 +182,7 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
         const item = itemFor(target);
         return !!item && itemActions(this.actor, item, this.isEditable).some(entry => entry.id === action.id);
       },
-      callback: target => this._performItemAction(itemFor(target), action.id)
+      onClick: (_event, target) => this._performItemAction(itemFor(target), action.id)
     }));
   }
   async _performItemAction(item, action) {
@@ -204,12 +204,16 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
   }
   _onDrop(event) {
     if (!this.isEditable) return null;
-    return notifyAction(() => serial(`sheet-drop:${this.actor.uuid}`, () => super._onDrop(event)));
+    // Core must read DataTransfer during the native drop event, before Chrome
+    // protects it. Queue document mutations only after the data is resolved.
+    return notifyAction(() => super._onDrop(event));
   }
-  async _onDropDocument(event, document) {
+  _onDropDocument(event, document) {
     if (!this.isEditable) return null;
-    if (["JournalEntry", "JournalEntryPage"].includes(document.documentName)) return applyConcept(this.actor, document);
-    return super._onDropDocument(event, document);
+    return serial(`sheet-drop:${this.actor.uuid}`, () => {
+      if (["JournalEntry", "JournalEntryPage"].includes(document.documentName)) return applyConcept(this.actor, document);
+      return super._onDropDocument(event, document);
+    });
   }
   async _onDropItem(event, item) {
     if (!this.isEditable) return null;

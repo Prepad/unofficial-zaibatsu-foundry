@@ -29,7 +29,7 @@ export class ZaibatsuActor extends foundry.documents.Actor {
     const roll = await new foundry.dice.Roll(`${formula} + @base + @modifier + @penalty`, { base, modifier, penalty }).evaluate();
     const result = checkResult(roll.total, target, { graded });
     if (!silent) await roll.toMessage({ speaker: foundry.documents.ChatMessage.getSpeaker({ actor: this }),
-      flavor: `${escape(label)} · цель ${target} · эффект ${result.effect} · ${result.success ? "Успех" : "Неудача"}${penalty ? ` · состояния ${penalty}` : ""}`,
+      flavor: `${escape(label)} · цель ${target} · эффект ${result.effect} · ${escape(game.i18n.localize(`ZAIBATSU.Outcomes.${result.outcome}`))}${penalty ? ` · состояния ${penalty}` : ""}`,
       flags: { zaibatsu: { check: { actorUuid: this.uuid, label, base, modifier, ...result } } } });
     return { roll, ...result };
   }
