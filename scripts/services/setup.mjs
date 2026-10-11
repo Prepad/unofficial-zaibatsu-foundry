@@ -3,6 +3,7 @@ import { processRequest, primaryGM, notifyAction, chat, escape, request, now, se
 import { chooseDamage } from "./combat.mjs";
 import { cyberDaily, resumeCyber } from "./cyberspace.mjs";
 import { CATALOG } from "../data/catalog.mjs";
+import { expireAreas } from "./areas.mjs";
 
 export function registerSettings() {
   game.settings.registerMenu("zaibatsu", "terminal", { name: "Терминал Zaibatsu", label: "Открыть терминал", hint: "Действия, бой, создание персонажа, киберпространство и справочник.", icon: "fa-solid fa-microchip", type: Workbench, restricted: false });
@@ -45,10 +46,7 @@ export async function worldTick(time, delta) {
     const actors = new Map(game.actors.map(actor => [actor.uuid, actor]));
     for (const scene of game.scenes) for (const token of scene.tokens) if (!token.actorLink && token.actor) actors.set(token.actor.uuid, token.actor);
     for (const actor of actors.values()) await actor.tick(time, Math.max(0, previous));
-    for (const scene of game.scenes) {
-      const expired = scene.templates.filter(template => template.getFlag("zaibatsu", "until") && template.getFlag("zaibatsu", "until") <= time).map(template => template.id);
-      if (expired.length) await scene.deleteEmbeddedDocuments("MeasuredTemplate", expired);
-    }
+    for (const scene of game.scenes) await expireAreas(scene, time);
     await cyberDaily(time);
     await game.settings.set("zaibatsu", "lastWorldTime", time);
   });

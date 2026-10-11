@@ -110,6 +110,11 @@ export async function executeActorCommand(actor, command, data = {}) {
     if (choice) return actor.applyDamage(event, choice);
   }
   if (command === "heal") {
+    if (actor.system.vehicle) {
+      const value = await prompt("Ремонт корпуса", [{ name: "amount", label: "Очки ремонта", type: "number", min: 0, value: 2 }]);
+      if (value) return actor.heal(value.amount);
+      return;
+    }
     const value = await prompt("Восстановление / ремонт", [{ name: "amount", label: "Очки", type: "number", min: 0, value: 2 }, { name: "first", label: "Восстанавливать сначала", value: "endurance", options: options([["endurance", "ВЫН"], ["strength", "СИЛ"], ["dexterity", "ЛОВ"]]) }, { name: "treated", label: "Раны обработаны: снять штраф", type: "checkbox" }, { name: "stabilized", label: "Остановить ухудшение серьёзных ран", type: "checkbox" }]);
     if (value) return actor.heal(value.amount, [value.first, ...["endurance", "strength", "dexterity"].filter(key => key !== value.first)], value);
   }

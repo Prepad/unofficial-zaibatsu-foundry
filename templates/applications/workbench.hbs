@@ -15,7 +15,7 @@
       <p>Раунд 6 секунд. Заявки → ближний бой всех участников → последствия → дальний бой всех участников → последствия. Урон применяется при завершении фазы; выбор брони и характеристики доступен в карточке атаки.</p>
       <div class="zb-toolbar"><button data-action="do" data-command="declare">Заявить действие</button><button data-action="do" data-command="major">Главное действие</button><button data-action="do" data-command="minor">Малое действие</button></div>
       <table><thead><tr><th>Участник</th><th>Заявка</th><th>Главное действие</th><th>Прицеливание</th></tr></thead><tbody>{{#each combatants}}<tr><td>{{name}}</td><td>{{declaration}}</td><td>{{action}}</td><td>+{{aim}}</td></tr>{{/each}}</tbody></table>
-      <h3>Ожидают разрешения</h3>{{#each pending}}<p>{{targetName}}: {{amount}} {{type}} · {{phase}} {{#if chosen}}· распределение выбрано{{/if}}</p>{{else}}<p>Нет ожидающих попаданий.</p>{{/each}}
+      <h3>Ожидают разрешения</h3>{{#each pending}}<p>{{targetName}}: {{amount}} {{damageLabel}} · {{phaseLabel}} {{#if chosen}}· распределение выбрано{{/if}}</p>{{else}}<p>Нет ожидающих попаданий.</p>{{/each}}
     </section>
     <section class="tab {{tabs.cyber.cssClass}}" data-group="primary" data-tab="cyber">
       <div class="zb-toolbar"><button data-action="do" data-command="connect">Подключиться</button><button data-action="do" data-command="disconnect">Отключиться</button>{{#if gm}}<button data-action="do" data-command="network">Создать сеть</button>{{/if}}</div>

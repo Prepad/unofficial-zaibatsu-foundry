@@ -2,6 +2,7 @@ import { attackPlan, PHASES, collisionFormulas } from "../rules/combat.mjs";
 import { checkResult } from "../rules/checks.mjs";
 import { chat, clone, escape, guard, now, options, prompt, request, roundKey, serial, tokenDistance } from "./runtime.mjs";
 import { evasionPenalty, occupiedVehicle } from "./vehicles.mjs";
+import { createArea, smokePenalty } from "./areas.mjs";
 
 export const PHASE_NAMES = { declaration: "Заявки", melee: "Ближний бой", ranged: "Дальний бой", aftermath: "Последствия" };
 const dice = async formula => new foundry.dice.Roll(formula).evaluate();
@@ -146,15 +147,7 @@ export async function queueDamage(actor, payload, user) {
   if (choice) await resolveEvent(target, event, choice);
 }
 function smokeModifier(source, destination) {
-  if (!source || !destination || !canvas.scene) return 0;
-  let modifier = 0;
-  for (const template of canvas.scene.templates.filter(entry => entry.getFlag("zaibatsu", "special") === "smoke" && entry.getFlag("zaibatsu", "until") > now())) {
-    for (const token of [source, destination]) {
-      const distance = Math.hypot(token.center.x - template.x, token.center.y - template.y) / canvas.scene.grid.size * canvas.scene.grid.distance;
-      if (distance <= template.distance) modifier = Math.min(modifier, distance <= template.distance / 2 ? -2 : -1);
-    }
-  }
-  return modifier;
+  return smokePenalty(canvas.scene, source, destination, now());
 }
 
 export function blastProfile(special, distance, vehicle = false) {
@@ -172,8 +165,7 @@ async function queueBlast(actor, message, event, user) {
     if (!scene) throw new Error("Сцена взрыва удалена.");
     const radius = ["gas", "smoke", "stun"].includes(event.special) ? 6 : event.special === "heGrenade" ? 5 : ["mine", "rocket"].includes(event.special) ? 10 : 9;
     const duration = event.special === "smoke" ? (await dice("1d6")).total * 18 : 6;
-    if (!scene.templates.some(template => template.getFlag("zaibatsu", "source") === message.id)) await scene.createEmbeddedDocuments("MeasuredTemplate", [{ t: "circle", x: event.area.x, y: event.area.y, distance: radius, direction: 0,
-      fillColor: event.special === "smoke" ? "#839599" : "#e29a3b", user: game.user.id, flags: { zaibatsu: { source: message.id, special: event.special, until: now() + duration } } }]);
+    await createArea(scene, { source: message.id, special: event.special, x: event.area.x, y: event.area.y, radius, until: now() + duration });
     const actors = new Set();
     for (const token of scene.tokens) {
       if (!token.actor || actors.has(token.actor.uuid)) continue;

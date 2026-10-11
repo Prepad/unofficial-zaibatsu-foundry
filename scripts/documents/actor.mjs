@@ -151,8 +151,11 @@ export class ZaibatsuActor extends foundry.documents.Actor {
     return serial(`actions:${this.uuid}`, async () => {
     guard(this);
     if (this.incapacitated) throw new Error("Персонаж сейчас не может действовать.");
-    if (!roundKey()) return;
     const state = clone(this.system.combatState);
+    if (!roundKey()) {
+      if (!continued && (state.aim || state.aimWeapon)) await this.update({ "system.combatState.aim": 0, "system.combatState.aimWeapon": "" });
+      return;
+    }
     const accelerator = this.system.attributes?.endurance.value > 0 && this.items.some(item => item.type === "retrogenic" && item.system.equipped && item.system.effectKey === "accelerator" && item.system.activeUntil > now());
     const actions = state.actionRound === roundKey() ? state.actionsUsed ?? 1 : 0;
     if (actions >= (accelerator ? 2 : 1)) throw new Error("Главные действия этого раунда уже использованы.");

@@ -3,10 +3,10 @@
   "type": "system",
   "title": "Zaibatsu",
   "description": "Самостоятельная система Zaibatsu: персонажи, бой, ранения, транспорт, создание агентов и карточное киберпространство. Для Foundry VTT 14.",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "url": "https://github.com/Prepad/unofficial-zaibatsu-foundry",
   "manifest": "https://github.com/Prepad/unofficial-zaibatsu-foundry/releases/latest/download/system.json",
-  "download": "https://github.com/Prepad/unofficial-zaibatsu-foundry/releases/download/v1.2.3/zaibatsu-1.2.3.zip",
+  "download": "https://github.com/Prepad/unofficial-zaibatsu-foundry/releases/download/v1.2.4/zaibatsu-1.2.4.zip",
   "compatibility": {
     "minimum": "14",
     "verified": "14.365",
