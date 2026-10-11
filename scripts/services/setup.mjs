@@ -62,7 +62,7 @@ export function registerHooks() {
     notifyAction(() => token.actor.update({ "system.combatState.aim": 0, "system.combatState.aimWeapon": "" }));
   });
   for (const name of ["updateActor", "updateItem", "createItem", "deleteItem", "updateCombat", "createCombat", "deleteCombat", "updateSetting"]) Hooks.on(name, () => {
-    for (const window of game.zaibatsu.windows) if (window.rendered && !window.busy) window.render({ force: true });
+    for (const window of game.zaibatsu.windows) if (window.rendered && !window.busy) window.render();
   });
   Hooks.on("getSceneControlButtons", controls => {
     if (!controls.tokens?.tools) return;

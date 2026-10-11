@@ -33,7 +33,7 @@ export class Workbench extends foundry.applications.api.HandlebarsApplicationMix
   async _onRender(context, options) {
     await super._onRender(context, options);
     game.zaibatsu.windows.add(this);
-    this.element.querySelector('[name="actorUuid"]').addEventListener("change", async event => { this.actorUuid = event.target.value; await this.render({ force: true }); });
+    this.element.querySelector('[name="actorUuid"]').addEventListener("change", async event => { this.actorUuid = event.target.value; await this.render(); });
     this.element.querySelector('[name="catalogSearch"]').addEventListener("input", event => {
       const text = event.target.value.toLocaleLowerCase();
       for (const row of this.element.querySelectorAll("[data-search]")) row.hidden = !row.dataset.search.toLocaleLowerCase().includes(text);
@@ -43,7 +43,7 @@ export class Workbench extends foundry.applications.api.HandlebarsApplicationMix
   static async perform(_event, target) {
     if (this.busy) return;
     this.busy = true;
-    try { return await notifyAction(async () => { await this.execute(target.dataset.command, target.dataset); await this.render({ force: true }); }); }
+    try { return await notifyAction(async () => { await this.execute(target.dataset.command, target.dataset); if (this.rendered) await this.render(); }); }
     finally { this.busy = false; }
   }
   async execute(command, data) { return executeActorCommand(this.actor, command, data); }

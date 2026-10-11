@@ -193,14 +193,14 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
         if (this.isEditable) await this.submit();
         return performItemAction(this.actor, item, action, this.isEditable);
       });
-    } finally { this.busy = false; if (this.rendered) await this.render({ force: true }); }
+    } finally { this.busy = false; if (this.rendered) await this.render(); }
   }
   static itemAction(_event, target) { return this._performItemAction(this.actor.items.get(target.dataset.itemId), target.dataset.itemAction); }
   static async command(_event, target) {
     if (!this.isEditable || this.busy) return;
     this.busy = true;
     try { return await notifyAction(async () => { await this.submit(); return executeActorCommand(this.actor, target.dataset.command, target.dataset); }); }
-    finally { this.busy = false; if (this.rendered) await this.render({ force: true }); }
+    finally { this.busy = false; if (this.rendered) await this.render(); }
   }
   _onDrop(event) {
     if (!this.isEditable) return null;

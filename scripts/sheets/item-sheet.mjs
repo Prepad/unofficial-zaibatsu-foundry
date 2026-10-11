@@ -39,7 +39,7 @@ export class ZaibatsuItemSheet extends HandlebarsApplicationMixin(foundry.applic
     if (!this.document.actor || this.busy) return;
     this.busy = true;
     try { return await notifyAction(async () => { if (this.isEditable) await this.submit(); return performItemAction(this.document.actor, this.document, target.dataset.itemAction, this.isEditable); }); }
-    finally { this.busy = false; if (this.rendered) await this.render({ force: true }); }
+    finally { this.busy = false; if (this.rendered) await this.render(); }
   }
   static async linkedActor() {
     const actor = await fromUuid(this.document.system.linkedActorUuid);

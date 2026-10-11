@@ -3,6 +3,7 @@ import { chat, escape, now, options, prompt, request, roundKey } from "./runtime
 import { collision } from "./combat.mjs";
 
 export function occupiedVehicle(actor) {
+  if (!actor) return null;
   return game.actors.find(vehicle => vehicle.type === "vehicle" && (vehicle.system.vehicle.driver === actor.uuid || vehicle.system.vehicle.passengers.includes(actor.uuid)));
 }
 export function evasionPenalty(actor) {
