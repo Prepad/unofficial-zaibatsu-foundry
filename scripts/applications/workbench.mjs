@@ -1,7 +1,7 @@
 import { CATALOG } from "../data/catalog.mjs";
 import { cardLabel } from "../rules/cyberspace.mjs";
 import { PHASE_NAMES } from "../services/combat.mjs";
-import { ITEM_TYPES, WOUND_NAMES } from "../config.mjs";
+import { ITEM_TYPES } from "../config.mjs";
 import { now, notifyAction, roundKey } from "../services/runtime.mjs";
 import { executeActorCommand } from "../services/actor-actions.mjs";
 
@@ -19,7 +19,7 @@ export class Workbench extends foundry.applications.api.HandlebarsApplicationMix
     const actor = this.currentActor;
     if (actor && !actors.some(entry => entry.uuid === actor.uuid)) actors.push(actor);
     const cyber = actor?.system.cyber ?? {};
-    return { tabs: this._prepareTabs("primary"), gm: game.user.isGM, actor, system: actor?.system, vehicle: actor?.system.vehicle, transport: actor?.type === "vehicle", agent: !!actor?.system.skills, woundLabel: WOUND_NAMES[actor?.system.wounds?.severity] ?? "Корпус транспорта",
+    return { tabs: this._prepareTabs("primary"), gm: game.user.isGM, actor, system: actor?.system, vehicle: actor?.system.vehicle, transport: actor?.type === "vehicle", agent: !!actor?.system.skills, woundLabel: actor?.stateLabel ?? "",
       agents: actors.map(actor => ({ uuid: actor.uuid, name: actor.name, selected: actor.uuid === this.actorUuid })),
       conditions: actor?.system.conditions?.map(state => ({ ...state, remaining: state.until ? `${Math.max(0, Math.ceil(state.until - now()))} с` : "постоянно" })),
       penalty: actor?.penalty ?? 0, retroPoints: actor?.system.advancement?.retroPoints ?? 0,

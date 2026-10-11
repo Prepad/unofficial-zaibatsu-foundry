@@ -1,10 +1,15 @@
-import { ATTRIBUTES, SKILLS } from "../config.mjs";
+import { ATTRIBUTES, SKILLS, WOUND_NAMES } from "../config.mjs";
 import { checkResult, characteristicModifier, skillModifier } from "../rules/checks.mjs";
 import { distributeDamage, healAttributes, vehicleDamage } from "../rules/combat.mjs";
 import { askModifier } from "../applications/roll-dialog.mjs";
 import { chat, clone, escape, guard, now, roundKey, serial, request } from "../services/runtime.mjs";
 
 export class ZaibatsuActor extends foundry.documents.Actor {
+  get stateLabel() {
+    const body = this.system.vehicle;
+    if (body) return body.damage >= body.destroyedAt ? "Уничтожен" : body.damage >= body.disabledAt ? "Неисправен" : "Исправен";
+    return WOUND_NAMES[this.system.wounds?.severity] ?? "";
+  }
   get adaptations() { return new Set(this.items.filter(item => item.type === "retrogenic" && item.system.equipped).map(item => item.system.effectKey)); }
   get penalty() {
     return (this.system.wounds?.penalty && !this.adaptations.has("painThreshold") ? -1 : 0)

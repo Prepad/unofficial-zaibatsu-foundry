@@ -1,4 +1,4 @@
-import { ATTRIBUTES, SKILLS, SKILL_GROUPS, ITEM_TYPES, WOUND_NAMES } from "../config.mjs";
+import { ATTRIBUTES, SKILLS, SKILL_GROUPS, ITEM_TYPES } from "../config.mjs";
 import { Workbench } from "../applications/workbench.mjs";
 import { unarmed, healDialog } from "../services/combat.mjs";
 import { cardLabel } from "../rules/cyberspace.mjs";
@@ -61,7 +61,7 @@ export class ZaibatsuActorSheet extends HandlebarsApplicationMixin(foundry.appli
     return {
       ...context, actor: this.actor, system, editable: this.isEditable, gm: game.user.isGM,
       vehicle: system.vehicle, conditions: system.conditions, penalty: this.actor.penalty,
-      woundLabel: WOUND_NAMES[system.wounds.severity],
+      woundLabel: this.actor.stateLabel,
       favorites: inventory.filter(item => item.favorite),
       cyber: { ...cyber, revealed: (cyber.revealed ?? []).map(entry => ({ node: entry.node, label: cardLabel(entry.card) })) },
       cyberItems: inventory.filter(item => ["cyberdeck", "program"].includes(item.type)),
@@ -288,7 +288,7 @@ export class VehicleSheet extends ZaibatsuActorSheet {
   async _prepareContext(options) {
     const context = await foundry.applications.sheets.ActorSheetV2.prototype._prepareContext.call(this, options);
     const inventory = inventoryContext(this.actor, this.isEditable).map(item => ({ ...item, typeLabel: game.i18n.localize(ITEM_TYPES[item.type]) }));
-    return { ...context, actor: this.actor, system: this.actor.system, editable: this.isEditable, inventory,
+    return { ...context, actor: this.actor, system: this.actor.system, editable: this.isEditable, inventory, stateLabel: this.actor.stateLabel,
       passengers: await Promise.all(this.actor.system.vehicle.passengers.map(async uuid => ({ uuid, name: (await fromUuid(uuid))?.name ?? "Недоступный пассажир" }))),
       sizes: ["small", "medium", "large"].map(value => ({ value, label: { small: "Малый", medium: "Средний", large: "Большой" }[value], selected: this.actor.system.vehicle.size === value })),
       modes: [["ground", "Наземный транспорт"], ["grav", "Гравитранспорт"]].map(([value, label]) => ({ value, label, selected: this.actor.system.vehicle.mode === value })),

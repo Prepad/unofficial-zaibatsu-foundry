@@ -1,6 +1,7 @@
 <div class="zb-sheet">
   <header class="zb-header"><img class="zb-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}"><input class="zb-name" name="name" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}}></header>
   <div class="zb-toolbar"><button type="button" data-action="command" data-command="drive" {{#unless editable}}disabled{{/unless}}>Манёвры и таран</button><button type="button" data-action="command" data-command="collision" {{#unless editable}}disabled{{/unless}}>Столкновение / падение</button><button type="button" data-action="command" data-command="heal" {{#unless editable}}disabled{{/unless}}>Ремонт</button><button type="button" data-action="command" data-command="crew" {{#unless editable}}disabled{{/unless}}>Экипаж</button></div>
+  <p>Состояние: {{stateLabel}}</p>
   <div class="zb-field-grid">
     <label>Управление<select name="system.vehicle.mode" {{#unless editable}}disabled{{/unless}}>{{#each modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>Размер<select name="system.vehicle.size" {{#unless editable}}disabled{{/unless}}>{{#each sizes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
