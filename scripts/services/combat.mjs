@@ -62,14 +62,15 @@ export async function attack(actor, weapon, supplied) {
         await roll.toMessage({ speaker: foundry.documents.ChatMessage.getSpeaker({ actor }), flavor: `${escape(weapon.name)}: ${weapon.system.fired ? "патроны закончились" : "задержка оружия"}` });
         break;
       }
-      const damage = result.success && !["stunner", "tranquilizer", "gas", "stun", "smoke"].includes(weapon.system.special)
+      const areaAttack = !!destination && BLASTS.has(weapon.system.special);
+      const damage = result.success && !areaAttack && !["stunner", "tranquilizer", "gas", "stun", "smoke"].includes(weapon.system.special)
         ? await dice(`${plan.damage} + ${plan.strengthBonus} + ${plan.addEffect ? Math.max(0, result.effect) : 0}`) : null;
       const event = result.success ? { amount: damage?.total ?? 0, type: plan.damageType, penetration: weapon.system.penetration,
         special: weapon.system.special, targetUuid: target?.uuid ?? "", actorUuid: actor.uuid,
         roundKey: roundKey(), phase, createdAt: now() } : null;
       if (event && destination && BLASTS.has(event.special)) event.area = { sceneId: canvas.scene.id, x: destination.center.x, y: destination.center.y, effect: result.effect };
       const message = await roll.toMessage({ speaker: foundry.documents.ChatMessage.getSpeaker({ actor }),
-        flavor: `<strong>${escape(weapon.name)}</strong> → ${escape(target?.name ?? "без цели")} · ${data.distance} м<br>${plan.parts.map(p => `${escape(p.label)} ${p.value > 0 ? "+" : ""}${p.value}`).join("; ")}<br>Эффект ${result.effect}: ${result.success ? "попадание" : "промах"}${damage ? ` · ${plan.damageType === "shock" ? "шок" : "урон"} ${damage.total}` : ""}${event ? damageControls : ""}`,
+        flavor: `<strong>${escape(weapon.name)}</strong> → ${escape(target?.name ?? "без цели")} · ${data.distance} м<br>${plan.parts.map(p => `${escape(p.label)} ${p.value > 0 ? "+" : ""}${p.value}`).join("; ")}<br>Эффект ${result.effect}: ${result.success ? "попадание" : "промах"}${event?.area ? " · воздействие по зоне" : ""}${damage ? ` · ${plan.damageType === "shock" ? "шок" : "урон"} ${damage.total}` : ""}${event ? damageControls : ""}`,
         flags: { zaibatsu: { attack: { actorUuid: actor.uuid, weaponId: weapon.id, result }, damage: event } } });
       if (damage) await damage.toMessage({ speaker: foundry.documents.ChatMessage.getSpeaker({ actor }), flavor: `Урон: ${escape(weapon.name)}` });
       if (event && target) await request(actor, "queueDamage", { messageId: message.id });
@@ -164,8 +165,16 @@ async function queueBlast(actor, message, event, user) {
     const scene = game.scenes.get(event.area.sceneId);
     if (!scene) throw new Error("Сцена взрыва удалена.");
     const radius = ["gas", "smoke", "stun"].includes(event.special) ? 6 : event.special === "heGrenade" ? 5 : ["mine", "rocket"].includes(event.special) ? 10 : 9;
-    const duration = event.special === "smoke" ? (await dice("1d6")).total * 18 : 6;
-    await createArea(scene, { source: message.id, special: event.special, x: event.area.x, y: event.area.y, radius, until: now() + duration });
+    let timing = message.getFlag("zaibatsu", "blastTiming");
+    if (!timing) {
+      const existing = scene.regions.find(region => region.getFlag("zaibatsu", "source") === message.id);
+      const until = existing?.getFlag("zaibatsu", "until");
+      const duration = until !== undefined ? Math.max(0, until - (event.createdAt ?? now()))
+        : event.special === "smoke" ? (await dice("1d6")).total * 18 : 6;
+      timing = { duration, until: until ?? now() + duration };
+      await message.setFlag("zaibatsu", "blastTiming", timing);
+    }
+    if (timing.until > now()) await createArea(scene, { source: message.id, special: event.special, x: event.area.x, y: event.area.y, radius, until: timing.until });
     const actors = new Set();
     for (const token of scene.tokens) {
       if (!token.actor || actors.has(token.actor.uuid)) continue;
@@ -176,9 +185,14 @@ async function queueBlast(actor, message, event, user) {
       actors.add(token.actor.uuid);
       let child = game.messages.find(entry => entry.getFlag("zaibatsu", "blastSource") === message.id && entry.getFlag("zaibatsu", "damage")?.targetUuid === token.actor.uuid);
       if (!child) {
-        const amount = (await dice(`${profile.formula} + ${profile.formula === "0" ? 0 : Math.max(0, event.area.effect)}`)).total;
-        child = await chat(actor, `Зона действия → ${token.actor.name}`, `Дистанция от центра ${distance.toFixed(1)} м · урон ${amount}${damageControls}`, {
-          blastSource: message.id, damage: { ...event, area: null, targetUuid: token.actor.uuid, special: profile.special ?? "", penetration: profile.penetration ?? 0, amount } });
+        const roll = profile.formula === "0" ? null : await dice(`${profile.formula} + ${Math.max(0, event.area.effect)}`);
+        const amount = roll?.total ?? 0;
+        const flags = { blastSource: message.id, damage: { ...event, area: null, areaDuration: timing.duration,
+          targetUuid: token.actor.uuid, special: profile.special ?? "", penetration: profile.penetration ?? 0, amount } };
+        const detail = `Дистанция от центра ${distance.toFixed(1)} м${roll ? ` · урон ${amount}` : ""}${damageControls}`;
+        child = roll ? await roll.toMessage({ speaker: foundry.documents.ChatMessage.getSpeaker({ actor }),
+          flavor: `<strong>Зона действия → ${escape(token.actor.name)}</strong><br>${detail}`, flags: { zaibatsu: flags } })
+          : await chat(actor, `Зона действия → ${token.actor.name}`, detail, flags);
       }
       await queueDamage(actor, { messageId: child.id }, game.user);
     }
@@ -204,7 +218,8 @@ export async function resolveEvent(target, event, choice = {}) {
       if (special === "gas" && result.effect <= -6) await target.applyDamage({ ...event, id: `${event.id}:gas`, special: "", amount: (await dice("2d6+2")).total }, choice);
     } else if (special !== "stun") await target.condition(special, "Воздействие спецоружия", seconds, special === "stunner" ? -1 : -2);
   } else if (special === "smoke") {
-    await chat(target, "Дымовая граната", `Радиус 6 м, ${(await dice("1d6")).total * 3} раундов; МОД −1, в густом дыме −2 (для лазеров вдвое).`);
+    const duration = event.areaDuration === undefined ? "" : `, длительность ${event.areaDuration / 6} раундов`;
+    await chat(target, "Дымовая граната", `Радиус 6 м${duration}; МОД −1, в густом дыме −2 (для лазеров вдвое).`);
   } else if (["hold", "drag", "disarm", "throw"].includes(special)) {
     const attacker = await fromUuid(event.actorUuid);
     if (special === "hold") await target.condition("held", "Удерживается в захвате", 0, 0, { attackerUuid: event.actorUuid });

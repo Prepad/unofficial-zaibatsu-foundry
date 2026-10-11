@@ -28,7 +28,9 @@ export function field(definition) {
   else if (type === "checkbox") input = `<input type="checkbox" ${attrs}${value ? " checked" : ""}>`;
   else if (type === "textarea") input = `<textarea ${attrs} rows="4">${escape(value)}</textarea>`;
   else input = `<input ${attrs} type="${escape(type)}" value="${escape(value)}"${min !== undefined ? ` min="${min}"` : ""}${max !== undefined ? ` max="${max}"` : ""}${type === "number" ? ` step="${step}"` : ""}>`;
-  return `<label class="zb-dialog-field">${escape(label)}${input}${help ? `<small>${escape(help)}</small>` : ""}</label>`;
+  const hint = help ? `<small>${escape(help)}</small>` : "";
+  if (type === "checkbox") return `<label class="zb-dialog-field">${input}<span>${escape(label)}${hint}</span></label>`;
+  return `<label class="zb-dialog-field"><span>${escape(label)}</span>${input}${hint}</label>`;
 }
 export async function prompt(title, definitions, { text = "", accept = "Продолжить" } = {}) {
   return foundry.applications.api.DialogV2.prompt({ window: { title }, rejectClose: false,
